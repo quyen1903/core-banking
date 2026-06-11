@@ -1,5 +1,6 @@
 package com.quinnbank.core.cif.api;
 
+import com.quinnbank.core.common.api.ApiErrorResponse;
 import com.quinnbank.core.cif.application.CustomerNotFoundException;
 import com.quinnbank.core.cif.application.DuplicateCustomerEmailException;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,4 @@ public class CifExceptionHandler {
                 .body(new ApiErrorResponse("CUSTOMER_NOT_FOUND", exception.getMessage()));
     }
 
-    record ApiErrorResponse(String code, String message) {
-    }
 }

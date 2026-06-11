@@ -1,9 +1,9 @@
 package com.quinnbank.core.cif.application;
 
 import com.quinnbank.core.cif.domain.Customer;
-import com.quinnbank.core.cif.domain.CustomerStatus;
-import com.quinnbank.core.cif.domain.KycStatus;
-import com.quinnbank.core.cif.domain.RiskRating;
+import com.quinnbank.core.cif.domain.enums.CustomerStatus;
+import com.quinnbank.core.cif.domain.enums.KycStatus;
+import com.quinnbank.core.cif.domain.enums.RiskRating;
 
 import java.util.UUID;
 

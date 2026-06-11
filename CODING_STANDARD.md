@@ -1,315 +1,403 @@
 # QuinnBank Core Coding Standard
 
-> Entry order: `AGENTS.md` -> `SECURITY.md` -> `LIBRARY.md` -> this file ->
-> `docs/`.
-> This standard is mandatory for QuinnBank Core implementation and review.
+> Mandatory read order: `AGENTS.md` -> `SECURITY.md` -> `LIBRARY.md` ->
+> this file -> `docs/ARCHITECTURE.md` -> `docs/ENGINEERING_PRINCIPLES.md` -> relevant `docs/architecture/*`.
+>
+> This standard is mandatory for implementation and review.
 
 ---
 
-## 1. Purpose And Bar
+## 1. Engineering Bar
 
-QuinnBank Core is a regulated banking codebase. The engineering bar is not
-"working CRUD". The bar is deterministic financial behavior, explicit security,
-auditable state changes, controlled data access, safe operations, and code that
-senior engineers can maintain under production pressure.
+QuinnBank Core is not a CRUD demo. The bar is:
 
-The terms MUST, MUST NOT, SHOULD, SHOULD NOT, and MAY are normative.
+- deterministic financial behavior;
+- explicit security and authorization;
+- auditable state changes;
+- controlled data access;
+- safe operations;
+- code that senior engineers can maintain under pressure.
 
----
-
-## 2. Non-Negotiable Engineering Rules
-
-- Financial correctness MUST outrank delivery speed.
-- Security controls MUST be designed into the use case, not added as a final
-  controller filter.
-- Domain invariants MUST be enforced in domain/application code and backed by
-  persistence constraints where appropriate.
-- Money, balances, fees, limits, rates, settlement amounts, and reconciliation
-  values MUST NOT use `double`, `float`, or binary floating point.
-- Ledger records MUST be append-only unless an explicit accounting design says
-  otherwise.
-- Applied migrations MUST be forward-only.
-- Sensitive data MUST NOT appear in logs, errors, metrics labels, test fixtures,
-  screenshots, examples, or documentation.
-- Cross-module access MUST use contracts, snapshots, or events.
-- A failed command MUST leave the system in a known state.
+Financial correctness outranks delivery speed.
 
 ---
 
-## 3. Architecture Style
+## 2. Non-Negotiable Rules
 
-Use a modular monolith with bounded contexts until an explicit architecture
-decision says otherwise.
+The codebase MUST NOT:
 
-Recommended package layout:
+- use `double` or `float` for money, balances, fees, rates, limits, settlement,
+  reconciliation, or ledger values;
+- return JPA entities from public APIs;
+- put DTOs inside controllers;
+- call repositories from controllers;
+- call Spring Data repositories from application services;
+- expose full account numbers or sensitive identifiers;
+- use public setters on aggregates for invariant-bearing state;
+- mutate financial state without transaction boundary and idempotency design;
+- modify applied migrations;
+- swallow failures with broad `catch (Exception)`;
+- disable security globally for convenience;
+- use field injection or service locator patterns;
+- introduce generic base services/controllers that hide domain behavior.
+
+The codebase MUST:
+
+- use explicit module boundaries;
+- map HTTP DTOs into commands/queries;
+- use use-case ports;
+- use outbound ports for persistence/integration;
+- centralize safe error mapping;
+- mask sensitive values;
+- make financial state transitions explicit;
+- add tests proportional to risk.
+
+
+---
+
+## 3. SOLID, DRY, DI, And Pattern Rules
+
+General design principles are mandatory for QuinnBank, but they must serve
+financial correctness, security, auditability, and module boundaries. Detailed
+rules live in `docs/ENGINEERING_PRINCIPLES.md`.
+
+Minimum rules:
+
+- Single Responsibility: controllers adapt HTTP, application services orchestrate
+  use cases, domain models protect invariants, infrastructure adapts external
+  systems. Do not mix these responsibilities.
+- Open/Closed: use named policies or strategies for real product variation such
+  as fees, interest, limits, and eligibility. Do not build abstract frameworks
+  for hypothetical variation.
+- Liskov: adapter and strategy implementations must preserve their port or
+  policy contract, including failure and idempotency semantics.
+- Interface Segregation: ports must be narrow and use-case specific. Do not
+  expose another module's internal service surface.
+- Dependency Inversion: application/domain code depends on ports and domain
+  concepts, not Spring Data repositories, HTTP clients, SDKs, or JPA details.
+- DRY: duplicate no business rule, permission, error code, idempotency rule,
+  money rounding rule, account masking rule, or audit action name. Do not create
+  generic abstractions for coincidental duplication.
+- Dependency Injection: constructor injection only; no field injection, service
+  locator, static mutable dependency, or `ApplicationContext` usage in business
+  code.
+- Design Patterns: use patterns only when they make a banking rule clearer,
+  safer, or more testable. Prefer Ports and Adapters, Policy, Strategy, State
+  Machine, Domain Event, Outbox, Mapper, and Factory Method. Avoid generic
+  `BaseService`, `BaseController`, broad `Manager`, and pattern cosplay.
+
+---
+
+## 4. Package Layout
+
+Default module shape:
 
 ```text
 com.quinnbank.core.<module>
-  api
-  application
-  domain
-  infrastructure
+├── api
+│   ├── command
+│   ├── query
+│   ├── dto
+│   │   ├── request
+│   │   └── response
+│   └── mapper
+├── application
+│   ├── command
+│   ├── query
+│   ├── port
+│   │   ├── in
+│   │   └── out
+│   ├── result
+│   └── service
+├── domain
+│   ├── model
+│   ├── value
+│   ├── policy
+│   ├── event
+│   └── exception
+└── infrastructure
+    ├── persistence
+    ├── integration
+    ├── messaging
+    └── configuration
 ```
+
+Small modules may omit empty folders. They must not collapse into
+controller-service-repository MVC.
+
+---
+
+## 5. Layer Responsibilities
+
+| Layer | Owns | Must not own |
+| --- | --- | --- |
+| `api` | HTTP routes, DTOs, shallow validation, HTTP status, HTTP mapper | business decisions, transactions, repository calls |
+| `application` | use cases, commands, queries, authorization invocation, transaction boundary, orchestration | HTTP objects, SQL, persistence schema |
+| `domain` | aggregates, value objects, invariants, policies, state machines, domain exceptions | Spring MVC, API DTOs, JPA repositories, SQL, external SDKs |
+| `infrastructure` | JPA/JDBC, persistence adapters, external clients, messaging, clocks, id generators | hidden business policy |
 
 Dependency direction:
 
 ```text
-api -> application -> domain
-infrastructure -> application/domain
-domain -> no web framework, no controller DTOs, no external clients
+api -> application
+application -> domain
+application -> application.port.out
+infrastructure -> application.port.out
+infrastructure -> domain
 ```
 
-Layer responsibilities:
-
-| Layer | Owns | Must not own |
-| --- | --- | --- |
-| `api` | HTTP routes, request/response DTOs, shallow request validation, status codes | Business decisions, transactions, repository calls |
-| `application` | Use cases, commands, queries, authorization calls, transaction boundary, orchestration, event publication | Raw HTTP objects, rendering, persistence schema details |
-| `domain` | Aggregates, value objects, invariants, policies, state machines, repository ports | Spring MVC, external SDKs, JSON DTOs, SQL strings |
-| `infrastructure` | JPA mappings, adapters, external clients, messaging, clocks, id generators | Business policy hidden from domain/application |
-
-For the current small project, JPA annotations on domain entities are tolerated.
-As modules grow, split persistence adapters from domain models where invariants
-or external contracts are becoming hard to protect.
-
 ---
 
-## 4. Module Ownership
+## 6. Naming Standards
 
-Each data concept has one owner.
-
-| Concept | Owning module | Cross-module access |
-| --- | --- | --- |
-| Customer master data and CIF number | CIF/customer | `CustomerDirectory`, snapshots, events |
-| Account product configuration | Account/product | Product snapshot/query contract |
-| Bank account lifecycle | Account | Account snapshot/query contract |
-| Balances and ledger postings | Ledger/accounting | Posting commands and immutable reports |
-| Transfers and payments | Payment/transfer | Command API, events, reconciliation views |
-| KYC, AML, sanctions, risk | Compliance | Decisions, cases, events |
-| Authentication identity | Identity/access | Principal, entitlements, policy decisions |
-| Audit evidence | Audit | Append-only audit API |
-
-Do not import another module's repository just because it is in the same JVM.
-
----
-
-## 5. Naming Standards
-
-Use business names, not technical placeholders.
+Use business names.
 
 | Type | Pattern | Example |
 | --- | --- | --- |
-| Use case | Verb phrase + `UseCase` | `RegisterCustomerUseCase` |
+| Controller | Context + command/query + `Controller` | `AccountCommandController` |
+| Request DTO | Intent + `Request` | `OpenAccountRequest` |
+| Response DTO | Resource + `Response` | `AccountResponse` |
+| Mapper | Context + `HttpMapper` | `AccountHttpMapper` |
+| Use case | Verb phrase + `UseCase` | `OpenAccountUseCase` |
 | Command | Intent + `Command` | `OpenAccountCommand` |
-| Query | Read action + `Query` | `GetAccountSummaryQuery` |
-| Snapshot | Read model + `Snapshot` | `CustomerSnapshot` |
+| Query | Read intent + `Query` | `GetAccountSummaryQuery` |
+| Result/snapshot | Resource + `Snapshot` | `AccountSnapshot` |
+| Out port | Capability + `Port` | `BankAccountRepositoryPort` |
+| Adapter | Technology + capability + `Adapter` | `BankAccountPersistenceAdapter` |
+| Policy | Decision + `Policy` | `AccountOpeningPolicy` |
 | Event | Past tense business fact | `AccountOpened` |
-| Policy | Decision concept + `Policy` | `WithdrawalLimitPolicy` |
-| Repository | Aggregate + `Repository` | `CustomerRepository` |
-| Exception | Business failure + `Exception` | `AccountBlockedException` |
+| Exception | Business failure + `Exception` | `AccountOpeningRejectedException` |
 
-Avoid names such as `Manager`, `Util`, `Helper`, `Processor`, or `Common`
-unless the responsibility is intentionally generic and cannot be expressed as a
-business concept.
+Avoid `Manager`, `Helper`, `Util`, `Processor`, `Common`, `Data`, and `Info`
+unless there is no business name.
 
 ---
 
-## 6. Domain Model Rules
+## 7. API Standard
 
-Aggregates MUST protect valid state.
+Controllers are adapters.
+
+Controllers MUST:
+
+- use versioned routes, such as `/api/v1/accounts`;
+- be split into command/query controllers when meaningful;
+- validate request shape, size, type, and basic format;
+- map request DTOs to application commands/queries;
+- call a use-case port;
+- map result snapshots to response DTOs;
+- return safe HTTP responses.
+
+Controllers MUST NOT:
+
+- contain business policy;
+- call repositories;
+- create aggregates directly for business use cases;
+- calculate money;
+- mask data inline when a mapper exists;
+- expose internal exception messages;
+- nest DTOs.
+
+Preferred account API files:
+
+```text
+api/command/AccountCommandController.java
+api/query/AccountQueryController.java
+api/dto/request/OpenAccountRequest.java
+api/dto/response/AccountResponse.java
+api/mapper/AccountHttpMapper.java
+```
+
+---
+
+## 8. Application Standard
+
+Use cases are the public application boundary.
 
 Rules:
 
-- Constructors and factories MUST produce valid objects.
-- State changes MUST use named methods such as `block()`, `close()`,
-  `postDebit()`, or `markKycVerified()`.
-- Public setters MUST NOT exist on aggregates unless the field has no invariant
-  impact.
-- Domain methods MUST reject invalid transitions.
-- Domain rules MUST not depend on HTTP request DTOs.
-- Time-sensitive behavior SHOULD use injected `Clock`.
-- Domain events SHOULD be emitted as business facts after successful state
-  transitions.
-- Value objects SHOULD be immutable and validate themselves.
-- Entity equality MUST be deliberate and tested when used in collections.
+- Inbound use-case interfaces live under `application.port.in`.
+- Outbound ports live under `application.port.out`.
+- Application services live under `application.service` and implement inbound
+  ports.
+- `@Transactional` belongs on application service methods or class.
+- Application services orchestrate; they do not own persistence details.
+- Application services return result objects or snapshots, not aggregates when
+  the API should not mutate them further.
+
+Financial commands MUST handle:
+
+- idempotency;
+- concurrency;
+- transaction boundary;
+- safe failure behavior;
+- audit or event recording.
+
+---
+
+## 9. Domain Standard
+
+Aggregates protect valid state.
+
+Rules:
+
+- Constructors/factories create valid objects.
+- State transitions use named methods.
+- Public setters are forbidden for invariant-bearing fields.
+- Value objects validate themselves.
+- Domain policies hold reusable business decisions.
+- Domain exceptions represent expected business failures.
+- Domain events are past-tense business facts.
+- Domain code must not depend on Spring MVC, HTTP DTOs, SQL strings, or external
+  clients.
 
 Bad:
 
 ```java
-customer.setStatus(CustomerStatus.ACTIVE);
+account.setStatus(AccountStatus.CLOSED);
 account.setAvailableBalance(account.getAvailableBalance().subtract(amount));
 ```
 
 Good:
 
 ```java
-customer.activate(approval);
+account.close(reason, actor, clock.instant());
 account.reserveWithdrawal(amount, commandId, clock.instant());
 ```
 
 ---
 
-## 7. Money, Currency, Rates, And Rounding
+## 10. Persistence And Migration Standard
 
-Money handling is high-risk.
+Migrations are production artifacts.
 
-Mandatory rules:
+Rules:
 
-- Use `BigDecimal` or a reviewed money value object.
-- Database monetary columns MUST define precision and scale explicitly.
-- Currency MUST be explicit using ISO 4217 code or a reviewed currency value
-  object.
-- Rounding mode MUST be explicit at every calculation boundary.
-- Never compare `BigDecimal` values with `equals()` when scale is irrelevant.
-  Use `compareTo()` or a money value object.
-- Do not mix currencies in one arithmetic operation.
-- Persist calculated amounts needed for audit and historical display.
-- Rate calculations MUST define day-count basis, compounding behavior, scale,
-  rounding, and effective date.
+- Use Flyway for schema changes.
+- Applied migrations are forward-only.
+- Table and column names use lower_snake_case.
+- Monetary columns use explicit `NUMERIC(p, s)`.
+- Mutable business tables include `created_at`, `updated_at`, and `version`.
+- Status columns correspond to explicit application/domain state machines.
+- Foreign keys and indexes must match owned relationships and query paths.
+- Do not use `ddl-auto` to mutate shared databases.
 
-Example:
+Repository rules:
 
-```java
-public record Money(BigDecimal amount, Currency currency) {
-    public Money {
-        Objects.requireNonNull(amount, "amount");
-        Objects.requireNonNull(currency, "currency");
-        amount = amount.setScale(currency.getDefaultFractionDigits(), RoundingMode.HALF_EVEN);
-    }
-}
-```
-
-Do not introduce a money abstraction casually. Introduce it when it centralizes
-currency, rounding, and validation rules for real workflows.
+- Spring Data repositories live in `infrastructure.persistence`.
+- Persistence adapters implement outbound repository ports.
+- Mappers convert between JPA entities and domain models if entities are split.
+- Cross-module repository access is forbidden.
 
 ---
 
-## 8. Ledger And Accounting Rules
+## 11. Money, Currency, Rates, And Rounding
+
+Mandatory:
+
+- Use `BigDecimal` or a reviewed money value object.
+- Currency is explicit, preferably ISO 4217.
+- Rounding mode is explicit at calculation boundaries.
+- Do not compare `BigDecimal` with `equals()` when scale is irrelevant.
+- Do not mix currencies in arithmetic.
+- Persist calculated values needed for audit and historical display.
+- Rates must define scale, rounding, effective date, and calculation basis.
+
+---
+
+## 12. Ledger And Balance Rules
 
 Ledger code has the highest correctness bar.
 
-Ledger entries SHOULD be immutable. Corrections SHOULD be posted as reversals or
-adjustments, never silent edits.
-
-A posting workflow MUST define:
-
-- Journal id.
-- Debit and credit accounts.
-- Amount and currency.
-- Posting date.
-- Value date.
-- Source command id.
-- Idempotency key or unique provider event id.
-- Actor or system origin.
-- Business reason.
-- Audit correlation id.
-
-Balanced posting invariant:
-
-```text
-sum(debits by currency) == sum(credits by currency)
-```
-
-Posting state transitions MUST be explicit:
-
-```text
-RECEIVED -> VALIDATED -> POSTED
-RECEIVED -> REJECTED
-POSTED -> REVERSED
-```
-
-Do not update balances independently from the ledger design. If cached balances
-exist, define how they reconcile to the immutable ledger.
-
----
-
-## 9. Transaction And Concurrency Rules
-
-Application use cases own transaction boundaries.
-
 Rules:
 
-- Use `@Transactional` at the use-case/application service boundary.
-- Keep transactions short.
-- Do not perform slow external calls inside database transactions unless the
-  failure semantics are explicitly designed.
-- Use optimistic locking for mutable aggregates where concurrent updates are
-  expected.
-- Use unique constraints for idempotency keys and external event ids.
-- Use atomic database updates or locks for stock-like counters and balances.
-- Retry only when the operation is safe to repeat.
-- Duplicate commands MUST produce the same business result or a deterministic
-  duplicate response.
+- Ledger entries should be immutable.
+- Corrections use reversal or adjustment entries.
+- Debits and credits balance by currency.
+- Posting workflow has explicit states.
+- Balance projections reconcile to ledger entries.
+- Manual adjustments require reason and audit evidence.
+- Posting idempotency keys are unique.
+- Reversal must not double-credit or double-debit under retry.
 
-Bad:
-
-```java
-account.setBalance(account.getBalance().subtract(amount));
-accountRepository.save(account);
-paymentClient.notifyTransferPosted(...);
-```
-
-Good shape:
+Minimum posting fields:
 
 ```text
-1. Validate command and authorization.
-2. Load aggregate with version or lock.
-3. Apply domain transition.
-4. Persist state and outbox event in same transaction.
-5. Publish asynchronously from outbox.
+journal id
+source command id
+idempotency key
+actor/system
+business reason
+posting date
+value date
+currency
+debit lines
+credit lines
+correlation id
 ```
 
 ---
 
-## 10. Idempotency Standard
+## 13. Idempotency Standard
 
-External commands that can be retried MUST be idempotent when they create or
-mutate financial state.
+Retriable commands that create or mutate state MUST be idempotent.
 
 Examples:
 
-- Open account.
-- Create transfer.
-- Post ledger entry.
-- Apply fee.
-- Process payment webhook.
-- Refund.
-- Reverse transaction.
-- Import batch file.
+- open account;
+- create transfer;
+- post ledger entry;
+- apply fee;
+- process webhook;
+- reverse transaction;
+- import batch file.
 
-Required fields:
+Idempotency record should include:
 
-- Idempotency key or external event id.
-- Actor or source system.
-- Request fingerprint where appropriate.
-- First result status.
-- Replay behavior.
-- Expiration/retention rule.
+- key or external event id;
+- actor/source system;
+- command fingerprint;
+- first result status;
+- response reference or result id;
+- replay behavior;
+- retention rule.
 
-If a replay has the same key but different command fingerprint, reject it as a
-conflict.
+Same key with different fingerprint is a conflict.
 
 ---
 
-## 11. API Standard
+## 14. Authorization Standard
 
-Controllers are adapters, not business services.
+Authorization belongs in application flow, not only route annotations.
 
-Rules:
+A decision must answer:
 
-- Public APIs MUST be versioned, for example `/api/v1/...`.
-- Controllers MUST map request DTOs to commands or queries.
-- Controllers MUST NOT call repositories directly.
-- Request DTO validation handles shape, size, type, and basic format.
-- Business validation lives in application/domain layers.
-- Responses MUST not expose JPA entities directly.
-- Sensitive fields MUST be omitted or masked.
-- Pagination MUST have bounded maximums.
-- Sorting MUST use allowlisted fields.
-- Idempotent command endpoints SHOULD accept an idempotency key header.
-- Error responses MUST use stable error codes and safe messages.
+1. who is the actor;
+2. what action is requested;
+3. which resource is targeted;
+4. whether the resource is in scope;
+5. whether context requires denial, step-up, or maker-checker.
 
-Preferred error shape:
+Never trust client-supplied role, customer id, account id, branch, permission,
+balance, fee, risk status, or payment status.
+
+---
+
+## 15. Exception And Error Standard
+
+Expected business failures should use specific exceptions.
+
+Examples:
+
+```text
+CustomerNotActiveException
+AccountProductInactiveException
+AccountOpeningRejectedException
+DuplicateCommandConflictException
+InsufficientFundsException
+AccountBlockedException
+```
+
+External error response shape:
 
 ```json
 {
@@ -320,246 +408,79 @@ Preferred error shape:
 ```
 
 Do not return stack traces, SQL names, hostnames, secrets, policy internals, or
-existence hints for protected resources.
+protected-resource existence hints.
 
 ---
 
-## 12. Authorization In Application Code
+## 16. Logging, Audit, And Observability
 
-Authorization MUST answer:
+Logs are diagnostics. Audit is evidence.
 
-1. Who is the actor?
-2. What action is requested?
-3. Which resource is targeted?
-4. What contextual restrictions apply?
+Logs:
 
-Context may include:
+- include correlation id;
+- do not include secrets;
+- do not include raw request/response bodies for identity or financial endpoints;
+- mask account numbers and sensitive identifiers.
 
-- Customer relationship.
-- Account ownership.
-- Branch or tenant.
-- Channel.
-- Device or network risk.
-- Transaction amount.
-- KYC/AML status.
-- Maker-checker state.
-- Time window.
+Audit events should exist for:
 
-Do not trust client-supplied `customerId`, `accountId`, role, branch, or
-permission values. Resolve identity and entitlements from authenticated context.
+- customer creation/status changes;
+- account opening/status changes;
+- product/rate/fee changes;
+- transfer acceptance/rejection/posting/reversal;
+- manual ledger adjustment;
+- authorization denial for sensitive resources;
+- role/permission changes;
+- exports and bulk reads.
 
 ---
 
-## 13. Persistence And Flyway Standard
+## 17. Testing Standard
 
-Migrations are production artifacts.
+Tests scale with risk.
 
-Rules:
-
-- Use lower_snake_case for table and column names.
-- Use plural table names consistently unless a module has an explicit convention.
-- Every table SHOULD have a primary key.
-- Mutable business tables SHOULD have `created_at`, `updated_at`, and `version`.
-- Audit/event tables SHOULD be append-only and may omit `updated_at`.
-- Monetary columns MUST use explicit `NUMERIC(p, s)`.
-- Status columns MUST be backed by explicit application state machines.
-- Foreign keys MUST be explicit for owned relationships.
-- Indexes MUST match query predicates.
-- Large backfills MUST be split from schema changes when needed.
-- Do not use `ddl-auto` to mutate shared databases.
-
-Migration review checklist:
-
-- Entity mapping agrees with migration.
-- Nullability is intentional.
-- Defaults are safe for existing rows.
-- Unique constraints are safe with existing data.
-- Indexes do not create unacceptable write overhead.
-- Locks and table rewrites are understood.
-- Roll-forward mitigation is documented.
-
----
-
-## 14. Validation And Exception Standard
-
-Validation layers:
-
-| Layer | Validates |
+| Area | Minimum tests |
 | --- | --- |
-| API | Shape, type, length, format, enum values |
-| Application | Authorization, use-case preconditions, duplicate command |
-| Domain | Invariants and state transitions |
-| Database | Uniqueness, foreign keys, non-null, precision |
+| Domain state transition | valid and invalid transition unit tests |
+| Use case | transaction, idempotency, authorization, duplicate behavior |
+| API | validation, status code, response contract, safe error |
+| Persistence | mapping, constraints, migration validation |
+| Security | positive and negative access tests |
+| Financial workflow | amount boundary, currency mismatch, concurrency, reversal |
 
-Exception rules:
-
-- Throw domain-specific exceptions for expected business failures.
-- Do not leak persistence exceptions as API messages.
-- Do not catch broad `Exception` and continue.
-- Do not convert security denial into business success.
-- Map exceptions centrally where practical.
-- Include correlation id in external error responses.
+Test data must be synthetic. Do not use real customer names, emails, phone
+numbers, account numbers, cards, KYC documents, or transaction histories.
 
 ---
 
-## 15. Security Coding Standard
+## 18. Review Blockers
 
-All code must satisfy `SECURITY.md`.
+Block code that:
 
-Implementation rules:
-
-- Authenticate every non-public route.
-- Enforce authorization before sensitive reads or mutations.
-- Use server-side resource scoping in query predicates.
-- Mask sensitive fields in logs and responses.
-- Validate all external input, including queue messages and webhooks.
-- Protect against mass assignment by mapping explicit fields.
-- Never log request bodies by default.
-- Never store plaintext secrets or tokens.
-- Use approved libraries for cryptography.
-- Add negative tests for authorization changes.
+- mutates financial state without transaction and idempotency;
+- uses unsafe money types;
+- exposes sensitive data;
+- bypasses authorization/resource scoping;
+- returns JPA entities from API;
+- bypasses domain transitions;
+- modifies applied migrations;
+- lacks tests for high-risk behavior;
+- hides failure with generic exception handling;
+- adds dependency without `LIBRARY.md` justification.
 
 ---
 
-## 16. Library Governance Standard
-
-Dependency and library decisions MUST follow `LIBRARY.md`.
-
-Do not add or upgrade libraries, Gradle plugins, annotation processors,
-generated-code tools, runtime drivers, container images, or CI tools without
-considering supply-chain, license, vulnerability, telemetry, and operational
-risk.
-
----
-
-## 17. Integration And Messaging Standard
-
-External systems are unreliable and untrusted until verified.
-
-Rules:
-
-- Use typed clients or adapters under `infrastructure`.
-- Validate all inbound integration payloads.
-- Verify webhook signatures where applicable.
-- Store external event ids for idempotency.
-- Use timeouts, retries, circuit breakers, and dead-letter handling where
-  operationally required.
-- Do not assume message delivery is exactly once.
-- Use outbox for events that must be published after a database transaction.
-- Message payloads MUST not contain secrets and SHOULD minimize sensitive data.
-
----
-
-## 18. Logging, Audit, And Observability
-
-Application logs:
-
-- Structured where practical.
-- Include correlation id.
-- Include module, use case, and stable business status where safe.
-- Exclude secrets and sensitive payloads.
-
-Audit records:
-
-- Are evidence, not diagnostics.
-- Must be append-only or tamper-evident.
-- Must include actor, action, entity, timestamp, decision, correlation id, and
-  safe old/new values when required.
-
-Metrics SHOULD cover:
-
-- API latency and error rate.
-- Authentication and authorization failures.
-- Financial command acceptance/rejection.
-- Posting failures.
-- Duplicate command rate.
-- Outbox lag.
-- Reconciliation exceptions.
-- Database lock/conflict rate.
-
----
-
-## 19. Testing Standard
-
-Tests must scale with risk.
-
-| Risk area | Minimum tests |
-| --- | --- |
-| Domain state transition | Unit tests for valid and invalid transitions |
-| Application use case | Transaction, duplicate command, authorization behavior |
-| API endpoint | Validation, status code, response contract, safe errors |
-| Repository/migration | Mapping and constraint validation |
-| Security | Positive and negative access tests |
-| Financial workflow | Idempotency, concurrency, reversal/failure path |
-| Integration callback | Signature validation and replay handling |
-
-Test data MUST be synthetic. Do not copy real names, account numbers, phone
-numbers, emails, cards, addresses, KYC documents, or transaction histories.
-
-Financial tests SHOULD include:
-
-- Boundary amounts.
-- Zero and negative amount rejection.
-- Currency mismatch.
-- Duplicate command.
-- Concurrent update.
-- Rounding edge cases.
-- Reversal path.
-
----
-
-## 20. Code Review Standard
-
-Reviewers MUST block changes that:
-
-- Mutate financial state without transaction and idempotency design.
-- Use unsafe money types.
-- Expose sensitive data.
-- Add broad authorization bypasses.
-- Return JPA entities from APIs.
-- Bypass domain state transitions.
-- Modify applied migrations.
-- Add external dependencies without justification.
-- Lack tests around high-risk behavior.
-- Hide failures with generic exception handling.
-
-Reviewers SHOULD ask:
-
-- What invariant does this protect?
-- What happens on retry?
-- What happens under concurrent requests?
-- What is audited?
-- What is masked?
-- What breaks if the external system is down?
-- How is this rolled back or rolled forward?
-
----
-
-## 21. Definition Of Done
+## 19. Definition Of Done
 
 A change is done when:
 
-- Correct module owns the behavior.
-- Business rules are explicit.
-- Security impact is considered.
-- Financial integrity impact is considered.
-- Relevant tests pass.
-- Migration impact is reviewed.
-- Logs and errors are safe.
-- Audit requirements are satisfied.
-- Documentation is updated for changed contracts or operations.
-- Residual risks are documented.
-
----
-
-## 22. Current Repo Notes
-
-The current codebase is early-stage. Until fixed, reviewers must pay attention
-to:
-
-- Entity and migration table-name consistency.
-- Timestamp column-name consistency.
-- Removal of web annotations from application services.
-- Introduction of module contracts before account/ledger modules depend on CIF.
-- Addition of security configuration and authorization tests before exposing
-  sensitive endpoints.
+- correct module owns the behavior;
+- boundaries follow `docs/ARCHITECTURE.md`;
+- business rules are explicit;
+- security and financial impact are considered;
+- relevant tests pass or gaps are documented;
+- migration impact is reviewed;
+- logs and errors are safe;
+- audit requirements are satisfied;
+- documentation is updated when contracts change.

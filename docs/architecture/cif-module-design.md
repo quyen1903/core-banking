@@ -40,8 +40,10 @@ Recommended package:
 ```text
 com.quinnbank.core.cif
   api
+  api.dto
   application
   domain
+  domain.enums
   infrastructure
 ```
 
@@ -239,8 +241,8 @@ cif/application/CustomerSnapshot
 cif/domain/Customer
 cif/domain/CustomerRepository
 cif/domain/CustomerNumberGenerator
-cif/domain/CustomerStatus
-cif/domain/KycStatus
+cif/domain/enums/CustomerStatus
+cif/domain/enums/KycStatus
 cif/infrastructure/SystemClockCustomerNumberGenerator
 ```
 

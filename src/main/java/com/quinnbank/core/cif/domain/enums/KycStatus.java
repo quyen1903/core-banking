@@ -1,4 +1,4 @@
-package com.quinnbank.core.cif.domain;
+package com.quinnbank.core.cif.domain.enums;
 
 public enum KycStatus {
     NOT_STARTED,
