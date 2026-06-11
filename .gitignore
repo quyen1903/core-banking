@@ -1,0 +1,186 @@
+# QuinnBank Core
+# Enterprise Java/Spring Boot git hygiene.
+#
+# Rules:
+# - Commit source, migrations, docs, Gradle wrapper scripts, and wrapper jar.
+# - Never commit secrets, private keys, local credentials, database dumps, logs,
+#   generated reports, build outputs, or machine-specific IDE state.
+
+HELP.md
+
+### Gradle / Java build outputs ###
+.gradle/
+build/
+out/
+target/
+bin/
+classes/
+generated/
+annotation-processing/
+*.class
+*.jar
+*.war
+*.ear
+
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+!**/src/main/**/out/
+!**/src/test/**/out/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### Test, coverage, and quality reports ###
+.coverage/
+.nyc_output/
+coverage/
+test-output/
+surefire-reports/
+failsafe-reports/
+jacoco.exec
+*.ec
+dependency-check-report.*
+spotbugsXml.xml
+spotbugsHtml.html
+checkstyle-result.xml
+pmd.xml
+mutation-testing/
+pit-reports/
+
+### Runtime logs and diagnostics ###
+logs/
+log/
+*.log
+*.log.*
+*.hprof
+hs_err_pid*
+replay_pid*
+*.pid
+*.seed
+*.stackdump
+*.threadump
+*.threaddump
+
+### Local Spring configuration ###
+application-local.yml
+application-local.yaml
+application-local.properties
+application-*.local.yml
+application-*.local.yaml
+application-*.local.properties
+bootstrap-local.yml
+bootstrap-local.yaml
+bootstrap-local.properties
+bootstrap-*.local.yml
+bootstrap-*.local.yaml
+bootstrap-*.local.properties
+
+### Environment files and local credentials ###
+.env
+.env.*
+!.env.example
+!.env.template
+*.local
+*.secret
+*.secrets
+secrets/
+local-secrets/
+credentials/
+private/
+
+### Keys, certificates, and keystores ###
+*.pem
+*.key
+*.p8
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.crt
+*.cer
+*.csr
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+
+### Cloud and infrastructure local state ###
+.aws/
+.azure/
+.gcloud/
+.kube/
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+### Database dumps and generated data ###
+*.dump
+*.dmp
+*.bak
+*.backup
+*.sql.gz
+*.sql.zip
+*.sqlite
+*.sqlite3
+*.db
+*.mv.db
+*.trace.db
+db-dumps/
+exports/
+imports/
+tmp-data/
+
+### Containers and local orchestration ###
+docker-compose.override.yml
+docker-compose.local.yml
+.docker/
+
+### IDEs and editors ###
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.example.json
+.apt_generated/
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache/
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### Operating system noise ###
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+### Temporary files ###
+tmp/
+temp/
+.tmp/
+.temp/
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
