@@ -1,5 +1,8 @@
 package com.quinnbank.core.cif.domain;
 
+import com.quinnbank.core.cif.domain.enums.CustomerStatus;
+import com.quinnbank.core.cif.domain.enums.KycStatus;
+import com.quinnbank.core.cif.domain.enums.RiskRating;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
