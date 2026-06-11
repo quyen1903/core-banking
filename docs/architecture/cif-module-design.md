@@ -183,13 +183,13 @@ CREATE TABLE customers (
 );
 ```
 
-Current schema note:
+Implementation note:
 
-- `Customer` maps to table `customer`, but migration creates `customers`.
-- `Customer` uses `created_at` and `updated_at`, but migration has
-  `create_at` and `update_at`.
-
-These should be aligned before running with `ddl-auto: validate`.
+- CIF is implemented under `com.quinnbank.core.cif`.
+- `V2__align_cif_customer_schema.sql` aligns the existing `customers` table
+  forward-only by renaming timestamp columns, widening `full_name`, and adding
+  CIF lifecycle fields.
+- The public API path remains `/api/v1/customers`.
 
 ## Events
 
@@ -207,19 +207,20 @@ splits into services, map these to an outbox table and publish to a broker.
 
 ## Refactor Path From Current Code
 
-Step 1: Stabilize current customer module.
+Step 1: Stabilize current customer module. Completed by CIF implementation.
 
 - Fix table name and timestamp column mismatch.
 - Remove web annotations from `CustomerService`.
 - Add `CustomerDirectory` and `CustomerSnapshot` for cross-module reads.
 
-Step 2: Rename conceptually to CIF without a large package move.
+Step 2: Rename conceptually to CIF without a large package move. Superseded by
+explicit `cif` package implementation.
 
 - Keep package `customer` if you want minimal churn.
 - Rename service/use cases and docs to CIF language.
 - Keep API path `/api/v1/customers` because it is user-facing and clear.
 
-Step 3: Move to explicit module package when the domain grows.
+Step 3: Move to explicit module package when the domain grows. Started.
 
 - Move `customer` to `cif`.
 - Split commands, queries, use cases, ports, and persistence adapters.

@@ -164,14 +164,18 @@ Before an environment is considered ready:
 
 ---
 
-## 9. Current Known Blocker
+## 9. Current Schema Status
 
-At the time this standard was added, application context tests fail because the
-current entity and migration disagree:
+The initial entity and migration disagreed:
 
 ```text
 Customer entity table: customer
 Migration table:       customers
 ```
 
-This must be fixed before treating any environment as deployable.
+The CIF module now maps to `customers`, and
+`V2__align_cif_customer_schema.sql` aligns the timestamp columns and CIF
+lifecycle fields forward-only. Environment readiness still depends on each
+environment having the approved PostgreSQL database, credentials, network
+access, migration controls, and synthetic or governed data required by this
+standard.
