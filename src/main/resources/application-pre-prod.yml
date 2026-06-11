@@ -1,0 +1,16 @@
+quinnbank:
+  environment:
+    name: pre-prod
+    tier: pre-production
+    production: false
+
+spring:
+  datasource:
+    url: ${QUINNBANK_PRE_PROD_DB_URL:${QUINNBANK_STAGING_DB_URL:${QUINNBANK_DB_URL}}}
+    username: ${QUINNBANK_PRE_PROD_DB_USERNAME:${QUINNBANK_STAGING_DB_USERNAME:${QUINNBANK_DB_USERNAME}}}
+    password: ${QUINNBANK_PRE_PROD_DB_PASSWORD:${QUINNBANK_STAGING_DB_PASSWORD:${QUINNBANK_DB_PASSWORD}}}
+
+logging:
+  level:
+    root: INFO
+    com.quinnbank.core: INFO

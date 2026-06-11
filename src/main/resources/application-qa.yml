@@ -1,0 +1,15 @@
+quinnbank:
+  environment:
+    name: qa
+    tier: non-production
+    production: false
+
+spring:
+  datasource:
+    url: ${QUINNBANK_QA_DB_URL:${QUINNBANK_TEST_DB_URL:${QUINNBANK_DB_URL}}}
+    username: ${QUINNBANK_QA_DB_USERNAME:${QUINNBANK_TEST_DB_USERNAME:${QUINNBANK_DB_USERNAME}}}
+    password: ${QUINNBANK_QA_DB_PASSWORD:${QUINNBANK_TEST_DB_PASSWORD:${QUINNBANK_DB_PASSWORD}}}
+
+logging:
+  level:
+    com.quinnbank.core: INFO

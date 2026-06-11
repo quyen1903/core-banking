@@ -1,0 +1,17 @@
+quinnbank:
+  environment:
+    name: prod
+    tier: production
+    production: true
+
+spring:
+  datasource:
+    url: ${QUINNBANK_PROD_DB_URL:${QUINNBANK_DB_URL}}
+    username: ${QUINNBANK_PROD_DB_USERNAME:${QUINNBANK_DB_USERNAME}}
+    password: ${QUINNBANK_PROD_DB_PASSWORD:${QUINNBANK_DB_PASSWORD}}
+
+logging:
+  level:
+    root: INFO
+    com.quinnbank.core: INFO
+    org.springframework.security: INFO

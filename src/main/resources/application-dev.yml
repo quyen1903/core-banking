@@ -1,0 +1,20 @@
+quinnbank:
+  environment:
+    name: dev
+    tier: non-production
+    production: false
+
+spring:
+  datasource:
+    url: ${QUINNBANK_DEV_DB_URL:${QUINNBANK_DB_URL:jdbc:postgresql://localhost:5432/quinnbank}}
+    username: ${QUINNBANK_DEV_DB_USERNAME:${QUINNBANK_DB_USERNAME:postgres}}
+    password: ${QUINNBANK_DEV_DB_PASSWORD:${QUINNBANK_DB_PASSWORD:postgres}}
+
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+
+logging:
+  level:
+    com.quinnbank.core: DEBUG
