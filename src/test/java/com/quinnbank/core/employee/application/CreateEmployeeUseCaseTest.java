@@ -45,7 +45,7 @@ class CreateEmployeeUseCaseTest {
         ));
 
         assertThat(employee.employeeNumber()).isEqualTo("EMP202606160000000001");
-        assertThat(employee.identityAccountId()).isNull();
+        assertThat(employee.identityUserPublicId()).isNull();
         assertThat(employee.workEmail()).isEqualTo("operator@example.invalid");
         assertThat(employee.primaryBranchCode()).isEqualTo("HCM-001");
         verify(employeeRepository).save(any(Employee.class));

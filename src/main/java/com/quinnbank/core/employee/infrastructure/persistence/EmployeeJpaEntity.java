@@ -28,7 +28,7 @@ class EmployeeJpaEntity {
     private String employeeNumber;
 
     @Column(name = "identity_account_id")
-    private UUID identityAccountId;
+    private UUID identityUserPublicId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
@@ -47,7 +47,7 @@ class EmployeeJpaEntity {
     static EmployeeJpaEntity create(
             UUID id,
             String employeeNumber,
-            UUID identityAccountId,
+            UUID identityUserPublicId,
             EmployeeStatus status,
             LocalDateTime createdAt,
             LocalDateTime updatedAt,
@@ -56,7 +56,7 @@ class EmployeeJpaEntity {
         EmployeeJpaEntity entity = new EmployeeJpaEntity();
         entity.id = id;
         entity.employeeNumber = employeeNumber;
-        entity.identityAccountId = identityAccountId;
+        entity.identityUserPublicId = identityUserPublicId;
         entity.status = status;
         entity.createdAt = createdAt;
         entity.updatedAt = updatedAt;

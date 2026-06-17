@@ -22,7 +22,7 @@ public class AccountQueryController {
     private final AccountHttpMapper mapper;
 
     @GetMapping("/{accountId}")
-    @PreAuthorize("hasAuthority('ACCOUNT_READ')")
+    @PreAuthorize("hasAuthority('ACCOUNT_VIEW')")
     public AccountResponse getAccount(@PathVariable UUID accountId) {
         return mapper.toResponse(getAccountUseCase.getById(new GetAccountByIdQuery(accountId)));
     }

@@ -45,7 +45,7 @@ public class CustomerController {
     }
 
     @GetMapping("/{customerId}")
-    @PreAuthorize("hasAuthority('CUSTOMER_READ')")
+    @PreAuthorize("hasAuthority('CUSTOMER_VIEW')")
     public CustomerResponse getCustomer(@PathVariable UUID customerId) {
         return CustomerResponse.from(getCustomerProfileQuery.findById(customerId));
     }

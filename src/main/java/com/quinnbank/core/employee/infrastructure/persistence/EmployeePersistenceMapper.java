@@ -12,7 +12,7 @@ class EmployeePersistenceMapper {
         return EmployeeJpaEntity.create(
                 employee.id(),
                 employee.employeeNumber(),
-                employee.identityAccountId(),
+                employee.identityUserPublicId(),
                 employee.status(),
                 employee.createdAt(),
                 employee.updatedAt(),
@@ -48,7 +48,7 @@ class EmployeePersistenceMapper {
         return Employee.restore(
                 employee.getId(),
                 employee.getEmployeeNumber(),
-                employee.getIdentityAccountId(),
+                employee.getIdentityUserPublicId(),
                 employee.getStatus(),
                 new EmployeeProfile(profile.getFullName(), profile.getWorkEmail(), profile.getJobTitle()),
                 new EmployeeBranchAssignment(

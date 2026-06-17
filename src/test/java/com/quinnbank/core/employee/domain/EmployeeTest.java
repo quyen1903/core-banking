@@ -27,7 +27,7 @@ class EmployeeTest {
 
         assertThat(employee.id()).isNotNull();
         assertThat(employee.employeeNumber()).isEqualTo("EMP202606160000000001");
-        assertThat(employee.identityAccountId()).isNull();
+        assertThat(employee.identityUserPublicId()).isNull();
         assertThat(employee.profile().fullName()).isEqualTo("Branch Operator");
         assertThat(employee.profile().workEmail()).isEqualTo("operator@example.invalid");
         assertThat(employee.primaryBranchAssignment().branchCode()).isEqualTo("HCM-001");

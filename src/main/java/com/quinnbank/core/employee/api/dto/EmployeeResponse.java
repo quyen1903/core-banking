@@ -7,7 +7,7 @@ import java.util.UUID;
 public record EmployeeResponse(
         UUID id,
         String employeeNumber,
-        UUID identityAccountId,
+        UUID identityUserPublicId,
         String fullName,
         String workEmail,
         String jobTitle,
@@ -19,7 +19,7 @@ public record EmployeeResponse(
         return new EmployeeResponse(
             employee.id(),
             employee.employeeNumber(),
-            employee.identityAccountId(),
+            employee.identityUserPublicId(),
             employee.fullName(),
             employee.workEmail(),
             employee.jobTitle(),

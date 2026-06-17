@@ -8,7 +8,7 @@ import java.util.UUID;
 public record EmployeeSnapshot(
         UUID id,
         String employeeNumber,
-        UUID identityAccountId,
+        UUID identityUserPublicId,
         String fullName,
         String workEmail,
         String jobTitle,
@@ -20,7 +20,7 @@ public record EmployeeSnapshot(
         return new EmployeeSnapshot(
                 employee.id(),
                 employee.employeeNumber(),
-                employee.identityAccountId(),
+                employee.identityUserPublicId(),
                 employee.profile().fullName(),
                 employee.profile().workEmail(),
                 employee.profile().jobTitle(),

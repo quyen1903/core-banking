@@ -109,7 +109,7 @@ transitions. `opening_idempotency_key` is unique and
 ## Security Notes
 
 HTTP account opening requires `ACCOUNT_OPEN`. Account reads require
-`ACCOUNT_READ`. The API response returns a masked account number.
+`ACCOUNT_VIEW`. The API response returns a masked account number.
 
 Current authorization is still authority-level only. Customer/account ownership,
 branch scope, signatory rights, and maker-checker are required before this is

@@ -12,7 +12,7 @@ public final class Employee {
 
     private final UUID id;
     private final String employeeNumber;
-    private final UUID identityAccountId;
+    private final UUID identityUserPublicId;
     private final EmployeeStatus status;
     private final EmployeeProfile profile;
     private final EmployeeBranchAssignment primaryBranchAssignment;
@@ -24,7 +24,7 @@ public final class Employee {
     private Employee(
             UUID id,
             String employeeNumber,
-            UUID identityAccountId,
+            UUID identityUserPublicId,
             EmployeeStatus status,
             EmployeeProfile profile,
             EmployeeBranchAssignment primaryBranchAssignment,
@@ -34,7 +34,7 @@ public final class Employee {
     ) {
         this.id = id;
         this.employeeNumber = employeeNumber;
-        this.identityAccountId = identityAccountId;
+        this.identityUserPublicId = identityUserPublicId;
         this.status = status;
         this.profile = profile;
         this.primaryBranchAssignment = primaryBranchAssignment;
@@ -84,7 +84,7 @@ public final class Employee {
     public static Employee restore(
             UUID id,
             String employeeNumber,
-            UUID identityAccountId,
+            UUID identityUserPublicId,
             EmployeeStatus status,
             EmployeeProfile profile,
             EmployeeBranchAssignment primaryBranchAssignment,
@@ -112,7 +112,7 @@ public final class Employee {
         return new Employee(
                 id,
                 employeeNumber.trim().toUpperCase(),
-                identityAccountId,
+                identityUserPublicId,
                 status,
                 profile,
                 primaryBranchAssignment,
@@ -140,8 +140,8 @@ public final class Employee {
         return employeeNumber;
     }
 
-    public UUID identityAccountId() {
-        return identityAccountId;
+    public UUID identityUserPublicId() {
+        return identityUserPublicId;
     }
 
     public EmployeeStatus status() {
