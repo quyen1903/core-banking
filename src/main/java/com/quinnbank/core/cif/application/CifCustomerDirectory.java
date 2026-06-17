@@ -1,7 +1,7 @@
 package com.quinnbank.core.cif.application;
 
 import com.quinnbank.core.cif.domain.Customer;
-import com.quinnbank.core.cif.domain.CustomerRepository;
+import com.quinnbank.core.cif.application.port.out.CustomerRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +13,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 class CifCustomerDirectory implements CustomerDirectory {
 
-    private final CustomerRepository customerRepository;
+    private final CustomerRepositoryPort customerRepository;
 
     @Override
     @Transactional(readOnly = true)

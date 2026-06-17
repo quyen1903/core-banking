@@ -8,6 +8,7 @@ import com.quinnbank.core.cif.application.RegisterCustomerCommand;
 import com.quinnbank.core.cif.application.RegisterCustomerUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,7 +27,12 @@ public class CustomerController {
     private final GetCustomerProfileQuery getCustomerProfileQuery;
 
     @PostMapping
-    public CustomerResponse registerCustomer(@Valid @RequestBody RegisterCustomerRequest request) {
+    @PreAuthorize("hasAuthority('CUSTOMER_CREATE')")
+    public CustomerResponse registerCustomer(
+        @Valid
+        @RequestBody
+        RegisterCustomerRequest request
+    ) {
         CustomerSnapshot customer = registerCustomerUseCase.register(
                 new RegisterCustomerCommand(
                         request.fullName(),
@@ -39,6 +45,7 @@ public class CustomerController {
     }
 
     @GetMapping("/{customerId}")
+    @PreAuthorize("hasAuthority('CUSTOMER_READ')")
     public CustomerResponse getCustomer(@PathVariable UUID customerId) {
         return CustomerResponse.from(getCustomerProfileQuery.findById(customerId));
     }

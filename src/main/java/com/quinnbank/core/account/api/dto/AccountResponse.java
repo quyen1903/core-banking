@@ -3,6 +3,7 @@ package com.quinnbank.core.account.api.dto;
 import com.quinnbank.core.account.application.result.AccountSnapshot;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record AccountResponse(
@@ -13,7 +14,9 @@ public record AccountResponse(
         String currency,
         BigDecimal availableBalance,
         BigDecimal currentBalance,
-        String status
+        String status,
+        LocalDateTime openedAt,
+        LocalDateTime closedAt
 ) {
 
     public static AccountResponse from(AccountSnapshot account) {
@@ -25,7 +28,9 @@ public record AccountResponse(
                 account.currency(),
                 account.availableBalance(),
                 account.currentBalance(),
-                account.status().name()
+                account.status().name(),
+                account.openedAt(),
+                account.closedAt()
         );
     }
 

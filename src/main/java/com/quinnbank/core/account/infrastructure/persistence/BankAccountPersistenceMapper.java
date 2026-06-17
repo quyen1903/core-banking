@@ -2,7 +2,7 @@ package com.quinnbank.core.account.infrastructure.persistence;
 
 import com.quinnbank.core.account.domain.model.AccountNumber;
 import com.quinnbank.core.account.domain.model.BankAccount;
-import com.quinnbank.core.account.domain.model.Money;
+import com.quinnbank.core.common.domain.Money;
 import org.springframework.stereotype.Component;
 
 import java.util.Currency;
@@ -22,6 +22,8 @@ class BankAccountPersistenceMapper {
                 account.status(),
                 account.openingIdempotencyKey(),
                 account.openingRequestFingerprint(),
+                account.openedAt(),
+                account.closedAt(),
                 account.createdAt(),
                 account.updatedAt(),
                 account.version()
@@ -39,6 +41,8 @@ class BankAccountPersistenceMapper {
                 new Money(entity.getAvailableBalance(), currency),
                 new Money(entity.getCurrentBalance(), currency),
                 entity.getStatus(),
+                entity.getOpenedAt(),
+                entity.getClosedAt(),
                 entity.getOpeningIdempotencyKey(),
                 entity.getOpeningRequestFingerprint(),
                 entity.getCreatedAt(),

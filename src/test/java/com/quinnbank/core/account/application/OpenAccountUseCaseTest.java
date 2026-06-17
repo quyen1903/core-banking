@@ -13,8 +13,8 @@ import com.quinnbank.core.account.application.service.OpenAccountService;
 import com.quinnbank.core.account.domain.model.AccountNumber;
 import com.quinnbank.core.account.domain.model.AccountProduct;
 import com.quinnbank.core.account.domain.model.BankAccount;
-import com.quinnbank.core.account.domain.model.Money;
 import com.quinnbank.core.account.domain.policy.AccountOpeningPolicy;
+import com.quinnbank.core.common.domain.Money;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;

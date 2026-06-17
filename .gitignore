@@ -47,6 +47,9 @@ pmd.xml
 mutation-testing/
 pit-reports/
 
+### JavaScript package manager stores ###
+.pnpm-store/
+
 ### Runtime logs and diagnostics ###
 logs/
 log/

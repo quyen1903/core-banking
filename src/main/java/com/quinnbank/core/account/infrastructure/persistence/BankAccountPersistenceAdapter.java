@@ -30,6 +30,12 @@ class BankAccountPersistenceAdapter implements AccountRepositoryPort, Idempotenc
     }
 
     @Override
+    public Optional<BankAccount> findByIdForUpdate(UUID accountId) {
+        return repository.findByIdForUpdate(accountId)
+                .map(mapper::toDomain);
+    }
+
+    @Override
     public Optional<AccountOpeningIdempotencyResult> findAccountOpening(String idempotencyKey) {
         return repository.findByOpeningIdempotencyKey(idempotencyKey)
                 .map(entity -> new AccountOpeningIdempotencyResult(

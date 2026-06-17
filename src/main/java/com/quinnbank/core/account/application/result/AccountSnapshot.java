@@ -1,9 +1,10 @@
 package com.quinnbank.core.account.application.result;
 
-import com.quinnbank.core.account.domain.model.AccountStatus;
+import com.quinnbank.core.account.domain.model.BankAccountStatus;
 import com.quinnbank.core.account.domain.model.BankAccount;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record AccountSnapshot(
@@ -14,7 +15,9 @@ public record AccountSnapshot(
         String currency,
         BigDecimal availableBalance,
         BigDecimal currentBalance,
-        AccountStatus status
+        BankAccountStatus status,
+        LocalDateTime openedAt,
+        LocalDateTime closedAt
 ) {
 
     public static AccountSnapshot from(BankAccount account) {
@@ -26,7 +29,9 @@ public record AccountSnapshot(
                 account.currentBalance().currency().getCurrencyCode(),
                 account.availableBalance().amount(),
                 account.currentBalance().amount(),
-                account.status()
+                account.status(),
+                account.openedAt(),
+                account.closedAt()
         );
     }
 }

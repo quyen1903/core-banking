@@ -1,5 +1,7 @@
 package com.quinnbank.core.account.domain.model;
 
+import com.quinnbank.core.common.domain.Money;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Currency;

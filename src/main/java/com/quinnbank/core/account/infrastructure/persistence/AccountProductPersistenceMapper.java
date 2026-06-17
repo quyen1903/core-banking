@@ -1,7 +1,7 @@
 package com.quinnbank.core.account.infrastructure.persistence;
 
 import com.quinnbank.core.account.domain.model.AccountProduct;
-import com.quinnbank.core.account.domain.model.Money;
+import com.quinnbank.core.common.domain.Money;
 import org.springframework.stereotype.Component;
 
 import java.util.Currency;

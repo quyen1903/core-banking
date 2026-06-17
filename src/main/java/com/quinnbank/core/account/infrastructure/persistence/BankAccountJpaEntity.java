@@ -1,6 +1,6 @@
 package com.quinnbank.core.account.infrastructure.persistence;
 
-import com.quinnbank.core.account.domain.model.AccountStatus;
+import com.quinnbank.core.account.domain.model.BankAccountStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -45,13 +45,19 @@ class BankAccountJpaEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
-    private AccountStatus status;
+    private BankAccountStatus status;
 
     @Column(name = "opening_idempotency_key", nullable = false, unique = true, length = 120)
     private String openingIdempotencyKey;
 
     @Column(name = "opening_request_fingerprint", nullable = false, length = 255)
     private String openingRequestFingerprint;
+
+    @Column(name = "opened_at", nullable = false)
+    private LocalDateTime openedAt;
+
+    @Column(name = "closed_at")
+    private LocalDateTime closedAt;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -71,9 +77,11 @@ class BankAccountJpaEntity {
             String currency,
             BigDecimal availableBalance,
             BigDecimal currentBalance,
-            AccountStatus status,
+            BankAccountStatus status,
             String openingIdempotencyKey,
             String openingRequestFingerprint,
+            LocalDateTime openedAt,
+            LocalDateTime closedAt,
             LocalDateTime createdAt,
             LocalDateTime updatedAt,
             long version
@@ -89,6 +97,8 @@ class BankAccountJpaEntity {
         entity.status = status;
         entity.openingIdempotencyKey = openingIdempotencyKey;
         entity.openingRequestFingerprint = openingRequestFingerprint;
+        entity.openedAt = openedAt;
+        entity.closedAt = closedAt;
         entity.createdAt = createdAt;
         entity.updatedAt = updatedAt;
         entity.version = version;

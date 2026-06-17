@@ -1,6 +1,6 @@
 package com.quinnbank.core.cif.application;
 
-import com.quinnbank.core.cif.domain.CustomerRepository;
+import com.quinnbank.core.cif.application.port.out.CustomerRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,7 +11,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class GetCustomerProfileQuery {
 
-    private final CustomerRepository customerRepository;
+    private final CustomerRepositoryPort customerRepository;
 
     @Transactional(readOnly = true)
     public CustomerSnapshot findById(UUID customerId) {

@@ -10,4 +10,6 @@ public interface AccountRepositoryPort {
     BankAccount save(BankAccount account);
 
     Optional<BankAccount> findById(UUID accountId);
+
+    Optional<BankAccount> findByIdForUpdate(UUID accountId);
 }

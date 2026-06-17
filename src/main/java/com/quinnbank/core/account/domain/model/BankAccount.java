@@ -1,8 +1,11 @@
 package com.quinnbank.core.account.domain.model;
 
 import com.quinnbank.core.account.domain.event.AccountOpenedEvent;
+import com.quinnbank.core.account.domain.exception.AccountBalanceProjectionRejectedException;
 import com.quinnbank.core.account.domain.exception.AccountOpeningRejectedException;
+import com.quinnbank.core.common.domain.Money;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +19,9 @@ public final class BankAccount {
     private final UUID productId;
     private final Money availableBalance;
     private final Money currentBalance;
-    private final AccountStatus status;
+    private final BankAccountStatus status;
+    private final LocalDateTime openedAt;
+    private final LocalDateTime closedAt;
     private final String openingIdempotencyKey;
     private final String openingRequestFingerprint;
     private final LocalDateTime createdAt;
@@ -31,7 +36,9 @@ public final class BankAccount {
             UUID productId,
             Money availableBalance,
             Money currentBalance,
-            AccountStatus status,
+            BankAccountStatus status,
+            LocalDateTime openedAt,
+            LocalDateTime closedAt,
             String openingIdempotencyKey,
             String openingRequestFingerprint,
             LocalDateTime createdAt,
@@ -45,6 +52,8 @@ public final class BankAccount {
         this.availableBalance = availableBalance;
         this.currentBalance = currentBalance;
         this.status = status;
+        this.openedAt = openedAt;
+        this.closedAt = closedAt;
         this.openingIdempotencyKey = openingIdempotencyKey;
         this.openingRequestFingerprint = openingRequestFingerprint;
         this.createdAt = createdAt;
@@ -86,7 +95,9 @@ public final class BankAccount {
                 product.id(),
                 Money.zero(product.currency()),
                 Money.zero(product.currency()),
-                AccountStatus.OPEN,
+                BankAccountStatus.OPEN,
+                openedAt,
+                null,
                 idempotencyKey.trim(),
                 requestFingerprint.trim(),
                 openedAt,
@@ -112,7 +123,9 @@ public final class BankAccount {
             UUID productId,
             Money availableBalance,
             Money currentBalance,
-            AccountStatus status,
+            BankAccountStatus status,
+            LocalDateTime openedAt,
+            LocalDateTime closedAt,
             String openingIdempotencyKey,
             String openingRequestFingerprint,
             LocalDateTime createdAt,
@@ -140,6 +153,12 @@ public final class BankAccount {
         if (status == null) {
             throw new IllegalArgumentException("account status is required");
         }
+        if (openedAt == null) {
+            throw new IllegalArgumentException("account opening time is required");
+        }
+        if (status == BankAccountStatus.CLOSED && closedAt == null) {
+            throw new IllegalArgumentException("closed account requires closure time");
+        }
         if (openingIdempotencyKey == null || openingIdempotencyKey.isBlank()) {
             throw new IllegalArgumentException("opening idempotency key is required");
         }
@@ -158,10 +177,51 @@ public final class BankAccount {
                 availableBalance,
                 currentBalance,
                 status,
+                openedAt,
+                closedAt,
                 openingIdempotencyKey.trim(),
                 openingRequestFingerprint.trim(),
                 createdAt,
                 updatedAt,
+                version
+        );
+    }
+
+    public BankAccount applyLedgerProjection(Money delta, LocalDateTime appliedAt) {
+        if (delta == null) {
+            throw new AccountBalanceProjectionRejectedException("ledger balance delta is required");
+        }
+        if (appliedAt == null) {
+            throw new AccountBalanceProjectionRejectedException("ledger projection time is required");
+        }
+        if (status != BankAccountStatus.OPEN) {
+            throw new AccountBalanceProjectionRejectedException("account is not open for ledger posting");
+        }
+        if (!availableBalance.currency().equals(delta.currency())) {
+            throw new AccountBalanceProjectionRejectedException("ledger balance delta currency must match account currency");
+        }
+
+        Money projectedAvailableBalance = availableBalance.add(delta);
+        Money projectedCurrentBalance = currentBalance.add(delta);
+        if (projectedAvailableBalance.amount().compareTo(BigDecimal.ZERO) < 0
+                || projectedCurrentBalance.amount().compareTo(BigDecimal.ZERO) < 0) {
+            throw new AccountBalanceProjectionRejectedException("ledger posting would make account balance negative");
+        }
+
+        return new BankAccount(
+                id,
+                accountNumber,
+                customerId,
+                productId,
+                projectedAvailableBalance,
+                projectedCurrentBalance,
+                status,
+                openedAt,
+                closedAt,
+                openingIdempotencyKey,
+                openingRequestFingerprint,
+                createdAt,
+                appliedAt,
                 version
         );
     }
@@ -196,8 +256,16 @@ public final class BankAccount {
         return currentBalance;
     }
 
-    public AccountStatus status() {
+    public BankAccountStatus status() {
         return status;
+    }
+
+    public LocalDateTime openedAt() {
+        return openedAt;
+    }
+
+    public LocalDateTime closedAt() {
+        return closedAt;
     }
 
     public String openingIdempotencyKey() {
