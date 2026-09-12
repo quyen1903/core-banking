@@ -1,13 +1,7 @@
-package com.quinnbank.core.cif.api;
+package com.quinnbank.core.cif.adapter;
 
-import com.quinnbank.core.cif.api.dto.CustomerResponse;
-import com.quinnbank.core.cif.api.dto.RegisterCustomerRequest;
-import com.quinnbank.core.cif.application.CustomerSnapshot;
-import com.quinnbank.core.cif.application.GetCustomerProfileQuery;
-import com.quinnbank.core.cif.application.RegisterCustomerCommand;
-import com.quinnbank.core.cif.application.RegisterCustomerUseCase;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import java.util.UUID;
+
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,7 +10,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.UUID;
+import com.quinnbank.core.cif.adapter.in.response.CustomerResponse;
+import com.quinnbank.core.cif.application.CustomerSnapshot;
+import com.quinnbank.core.cif.application.GetCustomerProfileQuery;
+import com.quinnbank.core.cif.application.RegisterCustomerCommand;
+import com.quinnbank.core.cif.application.RegisterCustomerUseCase;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/v1/customers")
@@ -31,13 +32,13 @@ public class CustomerController {
     public CustomerResponse registerCustomer(
         @Valid
         @RequestBody
-        RegisterCustomerRequest request
+        RegisterCustomerCommand request
     ) {
         CustomerSnapshot customer = registerCustomerUseCase.register(
                 new RegisterCustomerCommand(
-                        request.fullName(),
-                        request.email(),
-                        request.phone()
+                    request.fullName(),
+                    request.email(),
+                    request.phone()
                 )
         );
 

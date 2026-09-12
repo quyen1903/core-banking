@@ -26,11 +26,19 @@ public class Customer {
     @Id
     private UUID id;
 
+    //Unique customer profile number (CIF), used for customer lookup.
     @Column(name = "customer_number", nullable = false, unique = true, length = 50)
     private String customerNumber;
 
-    @Column(name = "full_name", nullable = false, length = 255)
-    private String fullName;
+    //external ID used to link the customer with external systems, such as a CRM or KYC provider
+    @Column(name = "external_id", nullable = false, length = 50)
+    private String externalId;
+
+    @Column(name = "first_name", nullable = false, length = 255)
+    private String firstName;
+
+    @Column(name = "last_name", nullable = false, length = 255)
+    private String lastName;
 
     @Column(unique = true, length = 255)
     private String email;
@@ -62,7 +70,8 @@ public class Customer {
 
     public static Customer register(
             String customerNumber,
-            String fullName,
+            String firstName,
+            String lastName,
             String email,
             String phone,
             LocalDateTime registeredAt
@@ -70,8 +79,11 @@ public class Customer {
         if (customerNumber == null || customerNumber.isBlank()) {
             throw new IllegalArgumentException("customer number is required");
         }
-        if (fullName == null || fullName.isBlank()) {
-            throw new IllegalArgumentException("full name is required");
+        if (firstName == null || firstName.isBlank()) {
+            throw new IllegalArgumentException("first name is required");
+        }
+        if (lastName == null || lastName.isBlank()) {
+            throw new IllegalArgumentException("last name is required");
         }
         if (registeredAt == null) {
             throw new IllegalArgumentException("registration time is required");
@@ -80,10 +92,13 @@ public class Customer {
         Customer customer = new Customer();
         customer.id = UUID.randomUUID();
         customer.customerNumber = customerNumber.trim();
-        customer.fullName = fullName.trim();
+        customer.externalId = UUID.randomUUID().toString();
+        customer.customerNumber = customerNumber.trim();
+        customer.firstName = firstName.trim();
+        customer.lastName = lastName.trim();
         customer.email = normalizeEmail(email);
         customer.phone = normalizePhone(phone);
-        customer.status = CustomerStatus.ACTIVE;
+        customer.status = CustomerStatus.PENDING;
         customer.kycStatus = KycStatus.NOT_STARTED;
         customer.riskRating = RiskRating.LOW;
         customer.createdAt = registeredAt;

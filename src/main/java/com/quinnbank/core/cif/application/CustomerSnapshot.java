@@ -19,14 +19,14 @@ public record CustomerSnapshot(
 ) {
     public static CustomerSnapshot from(Customer customer) {
         return new CustomerSnapshot(
-                customer.getId(),
-                customer.getCustomerNumber(),
-                customer.getFullName(),
-                customer.getEmail(),
-                customer.getPhone(),
-                customer.getStatus(),
-                customer.getKycStatus(),
-                customer.getRiskRating()
+            customer.getId(),
+            customer.getCustomerNumber(),
+            customer.getFullName(),
+            customer.getEmail(),
+            customer.getPhone(),
+            customer.getStatus(),
+            customer.getKycStatus(),
+            customer.getRiskRating()
         );
     }
 }

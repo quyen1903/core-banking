@@ -1,8 +1,9 @@
-package com.quinnbank.core.cif.api;
+package com.quinnbank.core.cif.adapter;
 
 import com.quinnbank.core.common.api.ApiErrorResponse;
 import com.quinnbank.core.cif.application.CustomerNotFoundException;
 import com.quinnbank.core.cif.application.DuplicateCustomerEmailException;
+import com.quinnbank.core.cif.adapter.in.CustomerController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
