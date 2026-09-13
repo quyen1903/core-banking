@@ -1,7 +1,4 @@
-package com.quinnbank.core.cif.infrastructure;
-
-import com.quinnbank.core.cif.domain.CustomerNumberGenerator;
-import org.springframework.stereotype.Component;
+package com.quinnbank.core.cif.adapter.out.generator;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -10,8 +7,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.UUID;
 
+import org.springframework.stereotype.Component;
+
+import com.quinnbank.core.cif.application.port.out.CustomerNumberGeneratorPort;
+
 @Component
-public class SystemClockCustomerNumberGenerator implements CustomerNumberGenerator {
+public class SystemClockCustomerNumberGenerator implements CustomerNumberGeneratorPort {
 
     private static final DateTimeFormatter FORMATTER =
             DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS").withZone(ZoneOffset.UTC);

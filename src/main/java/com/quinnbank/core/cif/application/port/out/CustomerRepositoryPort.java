@@ -1,17 +1,19 @@
 package com.quinnbank.core.cif.application.port.out;
 
-import com.quinnbank.core.cif.domain.Customer;
-
 import java.util.Optional;
 import java.util.UUID;
 
+import com.quinnbank.core.cif.domain.Customer;
+
 public interface CustomerRepositoryPort {
 
-    Customer save(Customer customer);
+    public Customer save(Customer customer);
 
-    Optional<Customer> findById(UUID customerId);
+    public Optional<Customer> findById(UUID customerId);
 
-    boolean existsByEmail(String email);
+    public boolean existsByEmail(String email);
 
-    Optional<Customer> findByCustomerNumber(String customerNumber);
+    public Optional<Customer> findByCustomerNumber(String customerNumber);
+
+    public Customer registerCustomer(Customer customer);
 }

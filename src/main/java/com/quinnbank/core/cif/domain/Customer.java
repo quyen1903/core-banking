@@ -1,8 +1,12 @@
 package com.quinnbank.core.cif.domain;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 import com.quinnbank.core.cif.domain.enums.CustomerStatus;
 import com.quinnbank.core.cif.domain.enums.KycStatus;
 import com.quinnbank.core.cif.domain.enums.RiskRating;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,15 +18,14 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
-
+//one customer can have multiple accounts
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "customers")
 public class Customer {
 
+    //internal customer identity
     @Id
     private UUID id;
 

@@ -1,59 +1,39 @@
-server:
-  port: ${SERVER_PORT:8080}
-  shutdown: graceful
-
 spring:
-  config:
-    import: optional:file:.env[.properties]
-
   application:
-    name: quinnbank-core
-
-  lifecycle:
-    timeout-per-shutdown-phase: 30s
-
-  threads:
-    virtual:
-      enabled: true
-
+    name: core
+  autoconfigure:
+    exclude: org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration
   datasource:
+    url: ${ITECHWX_DB_URL:jdbc:postgresql://localhost:5432/core_banking}
+    username: postgres
+    password: postgres
     driver-class-name: org.postgresql.Driver
-    hikari:
-      pool-name: QuinnBankCorePool
-      connection-timeout: 30000
-      validation-timeout: 5000
-      maximum-pool-size: ${QUINNBANK_DB_POOL_MAX_SIZE:10}
-      minimum-idle: ${QUINNBANK_DB_POOL_MIN_IDLE:2}
-
   jpa:
-    hibernate:
-      ddl-auto: validate
     open-in-view: false
+    hibernate:
+      ddl-auto: update
     show-sql: false
     properties:
       hibernate:
         format_sql: false
-
   flyway:
-    enabled: true
-    locations: classpath:db/migration
-    baseline-on-migrate: false
+    enabled: false
+  jackson:
+    serialization:
+      indent-output: true
+  threads:
+    virtual:
+      enabled: true
 
+server:
+  port: 8080
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include:
+          - health
+          - info
   endpoint:
     health:
       show-details: never
-  health:
-    db:
-      enabled: true
-
-logging:
-  level:
-    root: INFO
-    com.quinnbank.core: INFO
-    org.hibernate.SQL: WARN
-    org.hibernate.orm.jdbc.bind: WARN

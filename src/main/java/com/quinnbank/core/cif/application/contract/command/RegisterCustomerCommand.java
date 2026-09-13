@@ -25,4 +25,8 @@ public record RegisterCustomerCommand(
 
         String externalId
 ) {
+
+    public static Object builder() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }
