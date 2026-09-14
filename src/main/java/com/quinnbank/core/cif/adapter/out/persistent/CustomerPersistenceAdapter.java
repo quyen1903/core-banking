@@ -4,20 +4,18 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.stereotype.Component;
+
 import com.quinnbank.core.cif.application.port.out.CustomerRepositoryPort;
 import com.quinnbank.core.cif.domain.Customer;
 
+@Component 
 public class CustomerPersistenceAdapter implements CustomerRepositoryPort {
 
     private final CustomerJpaRepository customerJpaRepository;
-    private final Customer customer;
 
-    public CustomerPersistenceAdapter(
-        CustomerJpaRepository customerJpaRepository,
-        Customer customer
-    ) {
+    public CustomerPersistenceAdapter( CustomerJpaRepository customerJpaRepository) {
         this.customerJpaRepository = customerJpaRepository;
-        this.customer = customer;
     }
 
     @Override

@@ -1,7 +1,6 @@
 package com.quinnbank.core.cif.application.service;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 import com.quinnbank.core.cif.application.port.in.RegisterCustomerUseCase;
 import com.quinnbank.core.cif.application.contract.command.RegisterCustomerCommand;
@@ -15,11 +14,11 @@ import org.springframework.stereotype.Service;
 public class CustomerRegisterService implements RegisterCustomerUseCase {
 
     private final CustomerRepositoryPort customerRepository;
-    private final CustomerNumberGeneratorPort customerNumberGenerator;
+    private final CustomerNumberGeneratorPort customerNumberGeneratorPort;
 
-    public CustomerRegisterService(CustomerRepositoryPort customerRepository, CustomerNumberGeneratorPort customerNumberGenerator) {
+    public CustomerRegisterService(CustomerRepositoryPort customerRepository, CustomerNumberGeneratorPort customerNumberGeneratorPort) {
         this.customerRepository = customerRepository;
-        this.customerNumberGenerator = customerNumberGenerator;
+        this.customerNumberGeneratorPort = customerNumberGeneratorPort;
     }
     
     public RegisterCustomerResult registerCustomer(RegisterCustomerCommand command) {
@@ -32,7 +31,7 @@ public class CustomerRegisterService implements RegisterCustomerUseCase {
         }
 
 
-        String customerNumber = customerNumberGenerator.nextCustomerNumber();
+        String customerNumber = customerNumberGeneratorPort.nextCustomerNumber();
 
         Customer customer = Customer.register(
             customerNumber,

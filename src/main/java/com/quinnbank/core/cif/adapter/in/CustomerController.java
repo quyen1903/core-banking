@@ -5,23 +5,29 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
 import com.quinnbank.core.cif.adapter.in.response.RegisterCustomerResponse;
 import com.quinnbank.core.cif.application.contract.command.RegisterCustomerCommand;
 import com.quinnbank.core.cif.application.port.in.RegisterCustomerUseCase;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-
 @RestController
 @RequestMapping("/api/v1/customers")
-@RequiredArgsConstructor
 public class CustomerController {
 
     private final RegisterCustomerUseCase registerCustomerUseCase;
 
-    @PostMapping
-    public RegisterCustomerResponse registerCustomer(
+    public CustomerController(RegisterCustomerUseCase registerCustomerUseCase) {
+        this.registerCustomerUseCase = registerCustomerUseCase;
+    }
+
+    @PostMapping(
+        path = "/register",
+        consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<RegisterCustomerResponse> registerCustomer(
         @Valid
         @RequestBody
         RegisterCustomerCommand request
@@ -39,7 +45,7 @@ public class CustomerController {
 
         RegisterCustomerResult result = registerCustomerUseCase.registerCustomer(command);
 
-        return RegisterCustomerResponse.from(result);
+        return ResponseEntity.ok(RegisterCustomerResponse.from(result));
     }
 
     // @GetMapping("/{customerId}")
