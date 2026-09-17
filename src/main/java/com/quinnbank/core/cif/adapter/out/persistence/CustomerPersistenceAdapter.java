@@ -1,4 +1,4 @@
-package com.quinnbank.core.cif.adapter.out.persistent;
+package com.quinnbank.core.cif.adapter.out.persistence;
 
 import java.time.LocalDateTime;
 import java.util.Optional;

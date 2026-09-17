@@ -2,7 +2,7 @@ package com.quinnbank.core.cif.application.service;
 
 import java.time.LocalDateTime;
 
-import com.quinnbank.core.cif.application.port.in.RegisterCustomerUseCase;
+import com.quinnbank.core.cif.application.port.in.CustomerCommandUseCase;
 import com.quinnbank.core.cif.application.contract.command.RegisterCustomerCommand;
 import com.quinnbank.core.cif.application.contract.result.RegisterCustomerResult;
 import com.quinnbank.core.cif.application.port.out.CustomerRepositoryPort;
@@ -11,12 +11,12 @@ import com.quinnbank.core.cif.domain.Customer;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CustomerRegisterService implements RegisterCustomerUseCase {
+public class CustomerCommandService implements CustomerCommandUseCase {
 
     private final CustomerRepositoryPort customerRepository;
     private final CustomerNumberGeneratorPort customerNumberGeneratorPort;
 
-    public CustomerRegisterService(CustomerRepositoryPort customerRepository, CustomerNumberGeneratorPort customerNumberGeneratorPort) {
+    public CustomerCommandService(CustomerRepositoryPort customerRepository, CustomerNumberGeneratorPort customerNumberGeneratorPort) {
         this.customerRepository = customerRepository;
         this.customerNumberGeneratorPort = customerNumberGeneratorPort;
     }

@@ -16,7 +16,7 @@ export default function LoginPage() {
                 <ShieldCheck className="size-5" />
               </div>
               <div>
-                <p className="text-base font-semibold">QuinnBank</p>
+                <p className="text-base font-semibold">Quyen Dep Trai</p>
                 <p className="text-sm text-sidebar-foreground/70">
                   Customer banking
                 </p>

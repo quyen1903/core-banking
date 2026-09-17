@@ -10,16 +10,16 @@ import org.springframework.http.ResponseEntity;
 
 import com.quinnbank.core.cif.adapter.in.response.RegisterCustomerResponse;
 import com.quinnbank.core.cif.application.contract.command.RegisterCustomerCommand;
-import com.quinnbank.core.cif.application.port.in.RegisterCustomerUseCase;
+import com.quinnbank.core.cif.application.port.in.CustomerCommandUseCase;
 
 import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/v1/customers")
 public class CustomerController {
 
-    private final RegisterCustomerUseCase registerCustomerUseCase;
+    private final CustomerCommandUseCase registerCustomerUseCase;
 
-    public CustomerController(RegisterCustomerUseCase registerCustomerUseCase) {
+    public CustomerController(CustomerCommandUseCase registerCustomerUseCase) {
         this.registerCustomerUseCase = registerCustomerUseCase;
     }
 
