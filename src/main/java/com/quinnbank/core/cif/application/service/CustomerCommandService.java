@@ -1,49 +1,43 @@
 package com.quinnbank.core.cif.application.service;
 
-import java.time.LocalDateTime;
-
-import com.quinnbank.core.cif.application.port.in.CustomerCommandUseCase;
-import com.quinnbank.core.cif.application.contract.command.RegisterCustomerCommand;
-import com.quinnbank.core.cif.application.contract.result.RegisterCustomerResult;
-import com.quinnbank.core.cif.application.port.out.CustomerRepositoryPort;
+import com.quinnbank.core.cif.application.DuplicateCustomerEmailException;
+import com.quinnbank.core.cif.application.command.RegisterCustomerCommand;
+import com.quinnbank.core.cif.application.port.in.RegisterCustomerUseCase;
 import com.quinnbank.core.cif.application.port.out.CustomerNumberGeneratorPort;
-import com.quinnbank.core.cif.domain.Customer;
-import org.springframework.stereotype.Service;
+import com.quinnbank.core.cif.application.port.out.CustomerWritePort;
+import com.quinnbank.core.cif.application.result.RegisterCustomerResult;
+import com.quinnbank.core.cif.domain.exception.CustomerRegistrationRejectedException;
+import com.quinnbank.core.cif.domain.model.Customer;
 
-@Service
-public class CustomerCommandService implements CustomerCommandUseCase {
+import java.time.Clock;
+import java.time.LocalDateTime;
+import java.util.Objects;
 
-    private final CustomerRepositoryPort customerRepository;
-    private final CustomerNumberGeneratorPort customerNumberGeneratorPort;
+public final class CustomerCommandService implements RegisterCustomerUseCase {
+    private final CustomerWritePort customers;
+    private final CustomerNumberGeneratorPort customerNumbers;
+    private final Clock clock;
 
-    public CustomerCommandService(CustomerRepositoryPort customerRepository, CustomerNumberGeneratorPort customerNumberGeneratorPort) {
-        this.customerRepository = customerRepository;
-        this.customerNumberGeneratorPort = customerNumberGeneratorPort;
+    public CustomerCommandService(CustomerWritePort customers,
+                                  CustomerNumberGeneratorPort customerNumbers, Clock clock) {
+        this.customers = Objects.requireNonNull(customers);
+        this.customerNumbers = Objects.requireNonNull(customerNumbers);
+        this.clock = Objects.requireNonNull(clock);
     }
-    
+
+    @Override
     public RegisterCustomerResult registerCustomer(RegisterCustomerCommand command) {
-        //check if the customer already exists
-
-        boolean existingCustomer = customerRepository.existsByEmail(command.email());
-
-        if(existingCustomer) {
-            throw new IllegalArgumentException("Customer with email " + command.email() + " already exists.");
+        if (command == null) {
+            throw new CustomerRegistrationRejectedException("registration command is required");
         }
-
-
-        String customerNumber = customerNumberGeneratorPort.nextCustomerNumber();
-
+        String email = Customer.normalizeEmail(command.email());
+        if (email != null && customers.existsByEmail(email)) {
+            throw new DuplicateCustomerEmailException("Customer email is already registered.");
+        }
         Customer customer = Customer.register(
-            customerNumber,
-            command.firstName(),
-            command.lastName(),
-            command.email(),
-            command.phone(),
-            LocalDateTime.now()
-            
-        );
-
-        customerRepository.save(customer);
-        return new RegisterCustomerResult(customer.getId(), customer.getStatus());
+                customerNumbers.nextCustomerNumber(), command.firstName(), command.lastName(),
+                email, command.phone(), command.officeId(), command.externalId(), LocalDateTime.now(clock));
+        customers.save(customer);
+        return new RegisterCustomerResult(customer.getId(), customer.getStatus().name());
     }
 }

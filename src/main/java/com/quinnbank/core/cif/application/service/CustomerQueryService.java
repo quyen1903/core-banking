@@ -1,36 +1,24 @@
 package com.quinnbank.core.cif.application.service;
 
-import com.quinnbank.core.cif.application.port.in.CustomerQueryUseCase;
-import com.quinnbank.core.cif.application.contract.result.GetCustomerByIdResult;
-import com.quinnbank.core.cif.application.port.out.CustomerRepositoryPort;
+import com.quinnbank.core.cif.application.CustomerNotFoundException;
+import com.quinnbank.core.cif.application.port.in.GetCustomerByIdUseCase;
+import com.quinnbank.core.cif.application.port.out.CustomerReadPort;
+import com.quinnbank.core.cif.application.query.GetCustomerByIdQuery;
+import com.quinnbank.core.cif.application.result.GetCustomerByIdResult;
 
-import java.util.UUID;
+import java.util.Objects;
 
-import org.springframework.stereotype.Service;
-import com.quinnbank.core.cif.domain.Customer;
+public final class CustomerQueryService implements GetCustomerByIdUseCase {
+    private final CustomerReadPort customers;
 
-@Service
-public class CustomerQueryService implements CustomerQueryUseCase {
-
-    private final CustomerRepositoryPort customerRepository;
-    
-    CustomerQueryService(CustomerRepositoryPort customerRepository) {
-        this.customerRepository = customerRepository;
+    public CustomerQueryService(CustomerReadPort customers) {
+        this.customers = Objects.requireNonNull(customers);
     }
-    
+
     @Override
-    public GetCustomerByIdResult getCustomerById(UUID customerId) {
-        // Implement the logic to retrieve customer by ID
-
-        Customer customer = customerRepository.findById(customerId)
-            .orElseThrow(() -> new IllegalArgumentException("Customer with ID " + customerId + " not found."));
-        return new GetCustomerByIdResult(
-            customer.getId().toString(), 
-            customer.getFirstName(), 
-            customer.getLastName(), 
-            customer.getEmail(), 
-            customer.getPhone()
-        );
+    public GetCustomerByIdResult getCustomerById(GetCustomerByIdQuery query) {
+        Objects.requireNonNull(query, "customer query is required");
+        return customers.findById(query.customerId())
+                .orElseThrow(() -> CustomerNotFoundException.byId(query.customerId()));
     }
-
 }
