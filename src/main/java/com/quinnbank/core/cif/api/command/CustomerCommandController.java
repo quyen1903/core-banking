@@ -24,7 +24,10 @@ public class CustomerCommandController {
 
     @PostMapping(path = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<RegisterCustomerResponse> registerCustomer(
-            @Valid @RequestBody RegisterCustomerRequest request) {
+        @Valid
+        @RequestBody 
+        RegisterCustomerRequest request
+    ) {
         var result = registerCustomerUseCase.registerCustomer(CustomerHttpMapper.toCommand(request));
         return ResponseEntity.ok(CustomerHttpMapper.toResponse(result));
     }

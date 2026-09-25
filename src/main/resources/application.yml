@@ -11,7 +11,7 @@ spring:
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: false
     properties:
       hibernate:
@@ -24,6 +24,8 @@ spring:
   threads:
     virtual:
       enabled: true
+  profiles:
+    active: local
 
 server:
   port: 8080
@@ -37,3 +39,12 @@ management:
   endpoint:
     health:
       show-details: never
+
+---
+# Unauthenticated customer lookup is for isolated local synthetic data only.
+spring:
+  config:
+    activate:
+      on-profile: local
+server:
+  address: 127.0.0.1

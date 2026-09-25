@@ -185,7 +185,7 @@ class CustomerCommandControllerTest {
     }
 
     @Test
-    void customerProfileReadIsNotExposedWithoutAuthorizationInfrastructure() throws Exception {
+    void commandControllerDoesNotExposeCustomerQueries() throws Exception {
         mockMvc.perform(get("/api/v1/customers/{id}", CUSTOMER_ID))
                 .andExpect(status().isNotFound());
         verifyNoInteractions(registerCustomerUseCase);

@@ -28,8 +28,10 @@ an empty dependency classpath.
 cif
   api
     command/CustomerCommandController
+    query/CustomerQueryController
     dto/request/RegisterCustomerRequest
     dto/response/RegisterCustomerResponse
+    dto/response/GetCustomerByIdResponse
     mapper/CustomerHttpMapper
     CifExceptionHandler
   application
@@ -116,12 +118,17 @@ refactor does not add a retry policy or replace it with a sequence.
 ## Customer query
 
 ```text
-GetCustomerByIdUseCase(GetCustomerByIdQuery)
+GET /api/v1/customers/{id} (local profile only)
+  -> CustomerQueryController + UUID validation
+  -> CustomerHttpMapper
+  -> GetCustomerByIdUseCase(GetCustomerByIdQuery)
   -> read-only transaction decorator
   -> CustomerQueryService
   -> CustomerReadPort
   -> JPQL immutable DTO projection
   -> GetCustomerByIdResult
+  -> CustomerHttpMapper
+  -> GetCustomerByIdResponse
 ```
 
 The query handler does not load or reconstruct a domain aggregate, call the write
@@ -129,10 +136,35 @@ port, or expose a JPA entity. Missing customers raise a safe
 `CustomerNotFoundException`. Results contain customer ID, first/last names,
 email, phone number and full name.
 
-The query remains an application contract. No HTTP GET endpoint is added:
-the previous GET code was commented out, and resource-scoped authorization is
-not yet implemented. Future query callers must enforce authorization before
-customer data is read.
+The HTTP adapter is available only when `local` is active and none of `dev`,
+`test`, `qa`, `uat`, `staging`, `pre-prod`, or `prod` is active. The `local` profile section of
+`application.yml` binds the server to `127.0.0.1`. This is an unauthenticated development endpoint
+for synthetic customer data on an isolated local machine. Do not override the
+loopback binding or expose this profile through a proxy, tunnel, or shared
+runtime. Profile gating is not authentication or resource authorization.
+
+The successful HTTP 200 response contains only `id`, `firstName`, `lastName`,
+`email`, `phoneNumber`, and `fullName`. It includes `Cache-Control: no-store`.
+Missing customers return HTTP 404 with `CUSTOMER_NOT_FOUND`; malformed UUIDs
+return HTTP 400 with `INVALID_CUSTOMER_ID` before the use case is invoked.
+Error messages do not include submitted identifiers or internal exception details.
+
+Authentication and resource-scoped authorization remain unimplemented. Shared
+customer reads must authenticate the actor and enforce scope before invoking the
+application query. The local endpoint does not establish an authorization model,
+add audit storage, or change the database schema or dependencies.
+
+With a disposable local database containing synthetic customers, start the
+application and query the ID returned by registration:
+
+```bash
+./gradlew bootRun --args='--spring.profiles.active=local'
+curl -i http://127.0.0.1:8080/api/v1/customers/00000000-0000-0000-0000-000000000123
+```
+
+The example UUID is synthetic; it returns 404 unless that record exists locally.
+See [environment activation](../operations/environments.md#4-activation) for the
+local-profile constraints.
 
 CQRS here means separate command/query contracts, handlers and outbound ports
 sharing one transactional PostgreSQL database. It does not require separate
@@ -189,10 +221,14 @@ operational rollback. Test the chosen rollback artifact before deployment.
 
 ## Remaining controls
 
-The current build has Spring Security dependencies commented out. This refactor
-does not change that configuration or create new public read access. Authentication,
+The current build has Spring Security dependencies commented out. The customer
+lookup adapter does not change that configuration; its unauthenticated HTTP
+access is limited to the explicit local profile described above. Authentication,
 resource/branch authorization, rate limiting and negative authorization tests
 remain required before exposing customer workflows in a shared environment.
+Local profile and loopback defaults reduce accidental exposure; they do not
+protect against other processes on the same machine or unsafe deployment
+configuration. No durable read-audit event is added by this lookup.
 
 Registration also has no request idempotency record or durable audit event/store.
 Unique email detects conflicting email values, not repeated requests or the same
@@ -212,7 +248,11 @@ The test suite covers:
   normalization;
 - command normalization, duplicate checks, clock injection and failure propagation;
 - query snapshots, legacy names and missing-customer behavior;
-- HTTP compatibility, validation, fixed safe errors and absence of a new GET route;
+- registration HTTP compatibility and validation;
+- local customer lookup response fields, legacy names, safe 400/404 errors and
+  cache prevention;
+- customer lookup controller exclusion by default and for shared-environment
+  profiles, including combinations with `local`;
 - framework-independent core compilation and read-port separation;
 - PostgreSQL mapping, metadata, version initialization, null emails, transaction
   rollback, concurrent duplicate email and customer-number conflicts;

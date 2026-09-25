@@ -53,18 +53,19 @@ public final class Customer {
         String phone,
         String officeId,
         String externalId,
-        LocalDateTime registeredAt) {
-            return new Customer(
-                customerNumber,
-                firstName,
-                lastName,
-                email,
-                phone,
-                officeId,
-                externalId,
-                registeredAt
-            );
-        }
+        LocalDateTime registeredAt
+    ) {
+        return new Customer(
+            customerNumber,
+            firstName,
+            lastName,
+            email,
+            phone,
+            officeId,
+            externalId,
+            registeredAt
+        );
+    }
 
     public static String normalizeEmail(String email) {
         return email == null || email.isBlank() ? null : email.trim().toLowerCase(Locale.ROOT);

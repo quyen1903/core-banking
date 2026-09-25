@@ -19,6 +19,7 @@ weaken financial integrity, auditability, or security.
 
 | Tier | Spring profile | Alias profile | Purpose |
 | --- | --- | --- | --- |
+| Local lookup development | `local` | none | Isolated loopback-only development with synthetic data; enables unauthenticated customer lookup |
 | Development | `dev` | none | Local/shared development with synthetic data only |
 | Test/QA | `test` | `qa` | Automated testing, QA verification, integration checks |
 | UAT | `uat` | none | Business/user acceptance with controlled synthetic or approved masked data |
@@ -63,7 +64,33 @@ and `.yml` for the same keys makes precedence harder to audit.
 
 ## 4. Activation
 
-Local development example:
+The customer lookup endpoint, `GET /api/v1/customers/{id}`, is temporarily
+available only in the explicit `local` profile while authentication is not yet
+implemented:
+
+```bash
+./gradlew bootRun --args='--spring.profiles.active=local'
+curl -i http://127.0.0.1:8080/api/v1/customers/00000000-0000-0000-0000-000000000123
+```
+
+The `local` profile section in `application.yml` sets
+`server.address=127.0.0.1`. Use a disposable local database and synthetic data only. The example UUID is synthetic; replace it with
+the ID returned by local registration to retrieve a customer. An unknown UUID
+returns 404.
+
+The lookup controller is absent without `local`, and remains absent when `local`
+is combined with any of `dev`, `test`, `qa`, `uat`, `staging`, `pre-prod`, or
+`prod`. Do not override the loopback binding or use a proxy, tunnel, or shared
+runtime to expose this profile. The profile does not add authentication,
+authorization, or audit storage. Authenticated, resource-scoped access is required
+before customer lookup can be enabled in shared environments. The existing
+registration endpoint and other routes keep their existing behavior.
+
+The `local` profile only adds the loopback server binding; database and migration
+settings still come from the common configuration and any explicit runtime
+overrides. It does not establish environment-specific database credentials.
+
+Development profile example:
 
 ```powershell
 $env:SPRING_PROFILES_ACTIVE = "dev"
@@ -118,6 +145,7 @@ configuration or secret management.
 
 | Environment | Data rule |
 | --- | --- |
+| `local` | Synthetic data only on an isolated local machine. Disposable local database and throwaway credentials only. |
 | `dev` | Synthetic data only. Local throwaway credentials only. |
 | `test` / `qa` | Synthetic data only unless approved masked data is explicitly allowed. |
 | `uat` | Controlled synthetic or approved masked data. Business test data must be traceable and removable. |

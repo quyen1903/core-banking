@@ -16,9 +16,11 @@ import java.time.Clock;
 public class CifUseCaseConfiguration {
     @Bean
     RegisterCustomerUseCase registerCustomerUseCase(
-            CustomerWritePort customers, CustomerNumberGeneratorPort customerNumbers, Clock clock) {
-        return new TransactionalRegisterCustomerUseCase(
-                new CustomerCommandService(customers, customerNumbers, clock));
+        CustomerWritePort customers, 
+        CustomerNumberGeneratorPort customerNumbers, 
+        Clock clock
+    ) {
+        return new TransactionalRegisterCustomerUseCase(new CustomerCommandService(customers, customerNumbers, clock));
     }
 
     @Bean

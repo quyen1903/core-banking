@@ -18,7 +18,8 @@ public final class CustomerQueryService implements GetCustomerByIdUseCase {
     @Override
     public GetCustomerByIdResult getCustomerById(GetCustomerByIdQuery query) {
         Objects.requireNonNull(query, "customer query is required");
-        return customers.findById(query.customerId())
-                .orElseThrow(() -> CustomerNotFoundException.byId(query.customerId()));
+        return customers
+            .findById(query.customerId())
+            .orElseThrow(() -> CustomerNotFoundException.byId(query.customerId()));
     }
 }

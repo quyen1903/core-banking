@@ -18,8 +18,11 @@ public final class CustomerCommandService implements RegisterCustomerUseCase {
     private final CustomerNumberGeneratorPort customerNumbers;
     private final Clock clock;
 
-    public CustomerCommandService(CustomerWritePort customers,
-                                  CustomerNumberGeneratorPort customerNumbers, Clock clock) {
+    public CustomerCommandService(
+        CustomerWritePort customers,
+        CustomerNumberGeneratorPort customerNumbers, 
+        Clock clock
+    ) {
         this.customers = Objects.requireNonNull(customers);
         this.customerNumbers = Objects.requireNonNull(customerNumbers);
         this.clock = Objects.requireNonNull(clock);
@@ -35,8 +38,15 @@ public final class CustomerCommandService implements RegisterCustomerUseCase {
             throw new DuplicateCustomerEmailException("Customer email is already registered.");
         }
         Customer customer = Customer.register(
-                customerNumbers.nextCustomerNumber(), command.firstName(), command.lastName(),
-                email, command.phone(), command.officeId(), command.externalId(), LocalDateTime.now(clock));
+                customerNumbers.nextCustomerNumber(), 
+                command.firstName(), 
+                command.lastName(),
+                email, 
+                command.phone(), 
+                command.officeId(), 
+                command.externalId(), 
+                LocalDateTime.now(clock)
+            );
         customers.save(customer);
         return new RegisterCustomerResult(customer.getId(), customer.getStatus().name());
     }
