@@ -1,14 +1,14 @@
 package com.quinnbank.core.cif.application.service;
 
 import com.quinnbank.core.cif.application.CustomerNotFoundException;
-import com.quinnbank.core.cif.application.port.in.GetCustomerByIdUseCase;
+import com.quinnbank.core.cif.application.port.in.QueryCustomerUseCase;
 import com.quinnbank.core.cif.application.port.out.CustomerReadPort;
 import com.quinnbank.core.cif.application.query.GetCustomerByIdQuery;
 import com.quinnbank.core.cif.application.result.GetCustomerByIdResult;
 
 import java.util.Objects;
 
-public final class CustomerQueryService implements GetCustomerByIdUseCase {
+public final class CustomerQueryService implements QueryCustomerUseCase {
     private final CustomerReadPort customers;
 
     public CustomerQueryService(CustomerReadPort customers) {

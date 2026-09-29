@@ -4,7 +4,7 @@ import com.quinnbank.core.cif.api.command.CustomerCommandController;
 import com.quinnbank.core.cif.application.CustomerNotFoundException;
 import com.quinnbank.core.cif.application.DuplicateCustomerEmailException;
 import com.quinnbank.core.cif.application.command.RegisterCustomerCommand;
-import com.quinnbank.core.cif.application.port.in.RegisterCustomerUseCase;
+import com.quinnbank.core.cif.application.port.in.CommandCustomerUseCase;
 import com.quinnbank.core.cif.application.result.RegisterCustomerResult;
 import com.quinnbank.core.cif.domain.exception.CustomerRegistrationRejectedException;
 import java.util.UUID;
@@ -47,13 +47,13 @@ class CustomerCommandControllerTest {
             }
             """;
 
-    private RegisterCustomerUseCase registerCustomerUseCase;
+    private CommandCustomerUseCase registerCustomerUseCase;
     private LocalValidatorFactoryBean validator;
     private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
-        registerCustomerUseCase = mock(RegisterCustomerUseCase.class);
+        registerCustomerUseCase = mock(CommandCustomerUseCase.class);
         validator = new LocalValidatorFactoryBean();
         validator.afterPropertiesSet();
         mockMvc = MockMvcBuilders.standaloneSetup(new CustomerCommandController(registerCustomerUseCase))

@@ -18,9 +18,6 @@ public class CustomerJpaEntity {
     @Column(name = "customer_number", nullable = false, unique = true, length = 50)
     String customerNumber;
 
-    @Column(name = "full_name", nullable = false, length = 511)
-    String fullName;
-
     @Column(name = "first_name", length = 255)
     String firstName;
 

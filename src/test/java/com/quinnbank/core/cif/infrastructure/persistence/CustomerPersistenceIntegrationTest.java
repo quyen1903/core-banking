@@ -2,8 +2,8 @@ package com.quinnbank.core.cif.infrastructure.persistence;
 
 import com.quinnbank.core.cif.application.DuplicateCustomerEmailException;
 import com.quinnbank.core.cif.application.command.RegisterCustomerCommand;
-import com.quinnbank.core.cif.application.port.in.GetCustomerByIdUseCase;
-import com.quinnbank.core.cif.application.port.in.RegisterCustomerUseCase;
+import com.quinnbank.core.cif.application.port.in.QueryCustomerUseCase;
+import com.quinnbank.core.cif.application.port.in.CommandCustomerUseCase;
 import com.quinnbank.core.cif.application.port.out.CustomerReadPort;
 import com.quinnbank.core.cif.application.port.out.CustomerWritePort;
 import com.quinnbank.core.cif.application.query.GetCustomerByIdQuery;
@@ -32,8 +32,8 @@ import static org.junit.jupiter.api.Assertions.*;
         properties = "spring.config.location=classpath:cif-integration.yml")
 @EnabledIfEnvironmentVariable(named = "CIF_TEST_DB_PORT", matches = "[0-9]+")
 class CustomerPersistenceIntegrationTest {
-    @Autowired RegisterCustomerUseCase register;
-    @Autowired GetCustomerByIdUseCase query;
+    @Autowired CommandCustomerUseCase register;
+    @Autowired QueryCustomerUseCase query;
     @Autowired CustomerWritePort writes;
     @Autowired CustomerReadPort reads;
     @Autowired JdbcTemplate jdbc;
@@ -144,7 +144,7 @@ class CustomerPersistenceIntegrationTest {
         transactionAdvice.setTransactionAttributeSource(
                 new org.springframework.transaction.annotation.AnnotationTransactionAttributeSource());
         proxyFactory.addAdvice(transactionAdvice);
-        var proxied = (GetCustomerByIdUseCase) proxyFactory.getProxy();
+        var proxied = (QueryCustomerUseCase) proxyFactory.getProxy();
         var result = register.registerCustomer(command(null));
         assertEquals(result.customerId(), proxied.getCustomerById(
                 new GetCustomerByIdQuery(result.customerId())).customerId());

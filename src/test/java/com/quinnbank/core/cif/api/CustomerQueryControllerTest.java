@@ -2,7 +2,7 @@ package com.quinnbank.core.cif.api;
 
 import com.quinnbank.core.cif.api.query.CustomerQueryController;
 import com.quinnbank.core.cif.application.CustomerNotFoundException;
-import com.quinnbank.core.cif.application.port.in.GetCustomerByIdUseCase;
+import com.quinnbank.core.cif.application.port.in.QueryCustomerUseCase;
 import com.quinnbank.core.cif.application.query.GetCustomerByIdQuery;
 import com.quinnbank.core.cif.application.result.GetCustomerByIdResult;
 import org.junit.jupiter.api.AfterEach;
@@ -41,13 +41,13 @@ class CustomerQueryControllerTest {
     private static final String LOOKUP_PATH = "/api/v1/customers/{id}";
 
     private AnnotationConfigWebApplicationContext context;
-    private GetCustomerByIdUseCase getCustomerByIdUseCase;
+    private QueryCustomerUseCase getCustomerByIdUseCase;
     private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
         context = createContext("local");
-        getCustomerByIdUseCase = context.getBean(GetCustomerByIdUseCase.class);
+        getCustomerByIdUseCase = context.getBean(QueryCustomerUseCase.class);
         mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
     }
 
@@ -139,7 +139,7 @@ class CustomerQueryControllerTest {
             MockMvc restrictedMvc = MockMvcBuilders.webAppContextSetup(restrictedContext).build();
 
             restrictedMvc.perform(get(LOOKUP_PATH, CUSTOMER_ID)).andExpect(status().isNotFound());
-            verifyNoInteractions(restrictedContext.getBean(GetCustomerByIdUseCase.class));
+            verifyNoInteractions(restrictedContext.getBean(QueryCustomerUseCase.class));
         }
     }
 
@@ -169,8 +169,8 @@ class CustomerQueryControllerTest {
     @EnableWebMvc
     static class WebConfiguration {
         @Bean
-        GetCustomerByIdUseCase getCustomerByIdUseCase() {
-            return mock(GetCustomerByIdUseCase.class);
+        QueryCustomerUseCase getCustomerByIdUseCase() {
+            return mock(QueryCustomerUseCase.class);
         }
     }
 }

@@ -1,11 +1,13 @@
 package com.quinnbank.core.cif.application.service;
 
-import com.quinnbank.core.cif.application.DuplicateCustomerEmailException;
 import com.quinnbank.core.cif.application.command.RegisterCustomerCommand;
-import com.quinnbank.core.cif.application.port.in.RegisterCustomerUseCase;
+import com.quinnbank.core.cif.application.command.UpdateCustomerCommand;
+import com.quinnbank.core.cif.application.DuplicateCustomerEmailException;
+import com.quinnbank.core.cif.application.port.in.CommandCustomerUseCase;
 import com.quinnbank.core.cif.application.port.out.CustomerNumberGeneratorPort;
 import com.quinnbank.core.cif.application.port.out.CustomerWritePort;
 import com.quinnbank.core.cif.application.result.RegisterCustomerResult;
+import com.quinnbank.core.cif.application.result.UpdateCustomerResult;
 import com.quinnbank.core.cif.domain.exception.CustomerRegistrationRejectedException;
 import com.quinnbank.core.cif.domain.model.Customer;
 
@@ -13,7 +15,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public final class CustomerCommandService implements RegisterCustomerUseCase {
+public final class CustomerCommandService implements CommandCustomerUseCase {
     private final CustomerWritePort customers;
     private final CustomerNumberGeneratorPort customerNumbers;
     private final Clock clock;
@@ -49,5 +51,14 @@ public final class CustomerCommandService implements RegisterCustomerUseCase {
             );
         customers.save(customer);
         return new RegisterCustomerResult(customer.getId(), customer.getStatus().name());
+    }
+
+    @Override 
+    public UpdateCustomerResult updateCustomer(UpdateCustomerCommand command) {
+        if (command == null || command.id() == null || command.id().toString().isEmpty()) {
+            throw new CustomerRegistrationRejectedException("update command is required");
+        }
+        customers.updateCustomer(command);
+        return new UpdateCustomerResult(command.id(), "UPDATED");
     }
 }

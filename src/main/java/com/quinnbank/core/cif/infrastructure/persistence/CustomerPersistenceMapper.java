@@ -9,7 +9,6 @@ final class CustomerPersistenceMapper {
         CustomerJpaEntity entity = new CustomerJpaEntity();
         entity.id = customer.getId();
         entity.customerNumber = customer.getCustomerNumber();
-        entity.fullName = customer.getFullName();
         entity.firstName = customer.getFirstName();
         entity.lastName = customer.getLastName();
         entity.officeId = customer.getOfficeId();

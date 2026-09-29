@@ -1,21 +1,25 @@
 package com.quinnbank.core.cif.api.mapper;
 
+import java.util.UUID;
+
 import com.quinnbank.core.cif.api.dto.request.RegisterCustomerRequest;
+import com.quinnbank.core.cif.api.dto.request.UpdateCustomerRequest;
+import com.quinnbank.core.cif.api.dto.response.UpdateCustomerByIdResponse;
 import com.quinnbank.core.cif.api.dto.response.GetCustomerByIdResponse;
 import com.quinnbank.core.cif.api.dto.response.RegisterCustomerResponse;
 import com.quinnbank.core.cif.application.command.RegisterCustomerCommand;
+import com.quinnbank.core.cif.application.command.UpdateCustomerCommand;
 import com.quinnbank.core.cif.application.query.GetCustomerByIdQuery;
 import com.quinnbank.core.cif.application.result.GetCustomerByIdResult;
 import com.quinnbank.core.cif.application.result.RegisterCustomerResult;
+import com.quinnbank.core.cif.application.result.UpdateCustomerResult;
 
-import java.util.UUID;
-
+//convert data between HTTP layer and application layer
 public final class CustomerHttpMapper {
 
-    private CustomerHttpMapper() {
-    }
+    private CustomerHttpMapper() {}
 
-    public static RegisterCustomerCommand toCommand(RegisterCustomerRequest request) {
+    public static RegisterCustomerCommand toRegisterCommand(RegisterCustomerRequest request) {
         return new RegisterCustomerCommand(
             request.firstName(),
             request.lastName(),
@@ -26,8 +30,23 @@ public final class CustomerHttpMapper {
         );
     }
 
-    public static RegisterCustomerResponse toResponse(RegisterCustomerResult result) {
+    public static UpdateCustomerCommand toUpdateCommand(UUID id,UpdateCustomerRequest request) {
+        return new UpdateCustomerCommand(
+            id,
+            request.firstName(),
+            request.lastName(),
+            request.email(),
+            request.phone()
+        );
+    }
+
+
+    public static RegisterCustomerResponse RegisterCustomerResponse(RegisterCustomerResult result) {
         return new RegisterCustomerResponse(result.customerId(), result.status());
+    }
+
+    public static UpdateCustomerByIdResponse UpdateCustomerByIdResponse(UpdateCustomerResult result) {
+        return new UpdateCustomerByIdResponse(result.customerId(), result.status());
     }
 
     public static GetCustomerByIdQuery toQuery(UUID customerId) {
