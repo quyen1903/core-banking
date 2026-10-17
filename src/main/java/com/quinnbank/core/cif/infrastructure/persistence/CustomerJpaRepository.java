@@ -14,7 +14,9 @@ public interface CustomerJpaRepository extends JpaRepository<CustomerJpaEntity, 
     @Query("""
             select new com.quinnbank.core.cif.application.result.GetCustomerByIdResult(
                 customer.id, customer.firstName, customer.lastName, customer.email,
-                customer.phone, customer.fullName)
+                customer.phone,
+                nullif(trim(concat(coalesce(customer.firstName, ''), ' ',
+                    coalesce(customer.lastName, ''))), ''))
             from CustomerJpaEntity customer
             where customer.id = :customerId
             """)

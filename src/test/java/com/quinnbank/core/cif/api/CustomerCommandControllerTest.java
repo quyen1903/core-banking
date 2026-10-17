@@ -186,8 +186,9 @@ class CustomerCommandControllerTest {
 
     @Test
     void commandControllerDoesNotExposeCustomerQueries() throws Exception {
+        // The path exists for PATCH, but this controller must still reject GET.
         mockMvc.perform(get("/api/v1/customers/{id}", CUSTOMER_ID))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isMethodNotAllowed());
         verifyNoInteractions(registerCustomerUseCase);
     }
 

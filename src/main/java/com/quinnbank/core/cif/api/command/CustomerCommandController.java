@@ -25,10 +25,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/customers")
 public class CustomerCommandController {
 
-    private final CommandCustomerUseCase registerCustomerUseCase;
+    private final CommandCustomerUseCase commandCustomerUseCase;
 
-    public CustomerCommandController(CommandCustomerUseCase registerCustomerUseCase) {
-        this.registerCustomerUseCase = registerCustomerUseCase;
+    public CustomerCommandController(CommandCustomerUseCase commandCustomerUseCase) {
+        this.commandCustomerUseCase = commandCustomerUseCase;
     }
 
     @PostMapping(
@@ -40,7 +40,7 @@ public class CustomerCommandController {
         @RequestBody 
         RegisterCustomerRequest request
     ) {
-        RegisterCustomerResult result = registerCustomerUseCase.registerCustomer(CustomerHttpMapper.toRegisterCommand(request));
+        RegisterCustomerResult result = commandCustomerUseCase.registerCustomer(CustomerHttpMapper.toRegisterCommand(request));
         return ResponseEntity.ok(CustomerHttpMapper.RegisterCustomerResponse(result));
     }
 
@@ -50,9 +50,9 @@ public class CustomerCommandController {
     )
     public ResponseEntity<UpdateCustomerByIdResponse> updateCustomer(
         @PathVariable("id") String id,
-        @RequestBody UpdateCustomerRequest request
+        @Valid @RequestBody UpdateCustomerRequest request
     ) {
-        UpdateCustomerResult result = registerCustomerUseCase.updateCustomer(CustomerHttpMapper.toUpdateCommand(UUID.fromString(id), request));
+        UpdateCustomerResult result = commandCustomerUseCase.updateCustomer(CustomerHttpMapper.toUpdateCommand(UUID.fromString(id), request));
         return ResponseEntity.ok(CustomerHttpMapper.UpdateCustomerByIdResponse(result));
     }
 }

@@ -2,7 +2,7 @@ package com.quinnbank.core.cif.application.result;
 
 import java.util.UUID;
 
-/** Structured names can be absent on legacy rows; fullName preserves their recorded name. */
+/** Customer details with a display name composed from the available first and last names. */
 public record GetCustomerByIdResult(
     UUID customerId,
     String firstName,

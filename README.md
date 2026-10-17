@@ -1,5 +1,5 @@
 # core-banking
-
+```text
 src/
 ├── main/
 │   ├── java/com/quinnbank/core/        #Entire project is built based on SQRS pattern
@@ -83,4 +83,6 @@ Application Service ─────────> Domain
 Application Service ─────────> Output Port
 Persistence Adapter ─────────> Output Port      (implements)
 Persistence Adapter ─────────> JPA Repository
-Configuration ───────────────> Service + Adapter để nối chúng
+Configuration ───────────────> Service + Adapter to connect
+
+```

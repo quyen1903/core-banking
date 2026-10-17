@@ -49,6 +49,7 @@ public class CustomerWritePersistenceAdapter implements CustomerWritePort {
 
     @Transactional
     public void updateCustomer(UpdateCustomerCommand command) {
+        
         CustomerJpaEntity entity = repository.
             findById(command.id())
             .orElseThrow(() -> new IllegalArgumentException("Customer not found")); 

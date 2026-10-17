@@ -55,9 +55,10 @@ public final class CustomerCommandService implements CommandCustomerUseCase {
 
     @Override 
     public UpdateCustomerResult updateCustomer(UpdateCustomerCommand command) {
-        if (command == null || command.id() == null || command.id().toString().isEmpty()) {
+        if (command == null || command.id() == null) {
             throw new CustomerRegistrationRejectedException("update command is required");
         }
+
         customers.updateCustomer(command);
         return new UpdateCustomerResult(command.id(), "UPDATED");
     }
