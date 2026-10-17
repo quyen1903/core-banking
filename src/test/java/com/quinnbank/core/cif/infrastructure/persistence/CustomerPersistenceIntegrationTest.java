@@ -1,5 +1,6 @@
 package com.quinnbank.core.cif.infrastructure.persistence;
 
+import com.quinnbank.core.cif.adapter.out.configuration.TransactionalGetCustomerByIdUseCase;
 import com.quinnbank.core.cif.application.DuplicateCustomerEmailException;
 import com.quinnbank.core.cif.application.command.RegisterCustomerCommand;
 import com.quinnbank.core.cif.application.port.in.QueryCustomerUseCase;
@@ -133,7 +134,7 @@ class CustomerPersistenceIntegrationTest {
     @Test
     void readOnlyQueryWrapperDeclaresAndEnforcesTransaction() {
         assertTrue(AopUtils.isAopProxy(query));
-        var probe = new com.quinnbank.core.cif.infrastructure.configuration.TransactionalGetCustomerByIdUseCase(q -> {
+        var probe = new TransactionalGetCustomerByIdUseCase(q -> {
             assertTrue(TransactionSynchronizationManager.isActualTransactionActive());
             assertTrue(TransactionSynchronizationManager.isCurrentTransactionReadOnly());
             return reads.findById(q.customerId()).orElseThrow();

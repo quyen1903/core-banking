@@ -1,5 +1,7 @@
 package com.quinnbank.core.cif.infrastructure.persistence;
 
+import com.quinnbank.core.cif.adapter.out.persistence.CustomerJpaEntity;
+import com.quinnbank.core.cif.adapter.out.persistence.CustomerJpaRepository;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.junit.jupiter.api.Test;

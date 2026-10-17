@@ -262,7 +262,7 @@ The test suite covers:
 Fast tests, with no database connection:
 
 ```powershell
-.\gradlew.bat test --tests 'com.quinnbank.core.cif.api.*' --tests 'com.quinnbank.core.cif.domain.*' --tests 'com.quinnbank.core.cif.application.*' --tests 'com.quinnbank.core.cif.architecture.*'
+.\gradlew.bat test --tests 'com.quinnbank.core.cif.adapter.*' --tests 'com.quinnbank.core.cif.domain.*' --tests 'com.quinnbank.core.cif.application.*' --tests 'com.quinnbank.core.cif.architecture.*'
 ```
 
 PostgreSQL tests require a disposable local database named `cif_refactor_test`
