@@ -1,4 +1,15 @@
 # core-banking
+
+## Auth: hướng dẫn và việc cần làm
+
+- [Bắt đầu ở đây: checklist triển khai từng bảng auth bằng tiếng Việt](docs/architecture/auth-implementation-guide.vi.md).
+- [Thiết kế database, quan hệ và DDL PostgreSQL đề xuất](docs/architecture/auth-session-schema-proposal.md).
+- [Ranh giới và API mục tiêu của identity module](docs/architecture/identity-module-design.md).
+
+Hướng hiện tại: Spring Security + server-side session, lưu session bằng Spring
+Session JDBC trong PostgreSQL. Các tài liệu trên mô tả thiết kế và công việc
+cần làm; việc có entity hoặc DDL nháp chưa có nghĩa là tính năng đã triển khai.
+
 ```text
 src/
 ├── main/

@@ -1,4 +1,4 @@
-package com.quinnbank.core.auth.adapter.out.persistent;
+package com.quinnbank.core.auth.adapter.out.persistent.identity_user;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -6,17 +6,18 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
 @Table(name = "appuser")
-public class AppUserJpaEntity {
+public class IdentityUserJpaEntity {
     @Id
     UUID id;
 
     @NotNull
-    @Column(name = "username" ,length = 100)
+    @Column(name = "username" ,length = 100,unique = true)
     String username;
 
     @NotNull
@@ -40,7 +41,7 @@ public class AppUserJpaEntity {
 
     @NotNull
     @Column(name = "last_time_password_updated")
-    LocalDate lastTimePasswordUpdated;
+    Instant lastTimePasswordUpdated;
 
     @Column(name = "password_never_expires")
     boolean passwordNeverExpires;
@@ -57,5 +58,5 @@ public class AppUserJpaEntity {
 
     @NotNull
     @Column(name = "updated_at")
-    LocalDate updatedAt;
+    Instant updatedAt;
 }

@@ -1,5 +1,11 @@
 # Identity Module Design
 
+Status: target design. The table definitions and APIs below do not indicate
+that migrations, use cases, or authentication controls have been implemented.
+
+- [Vietnamese implementation checklist](auth-implementation-guide.vi.md)
+- [Database and server-side session proposal with draft DDL](auth-session-schema-proposal.md)
+
 ## Meaning
 
 `IdentityUser` is the login-capable security identity for an existing QuinnBank
@@ -32,9 +38,10 @@ exists because login needs:
 - an `IdentityUser` with clear owner linkage and status;
 - an encoded credential record separate from the user profile;
 - role and permission mapping for authorities;
-- future token, refresh-token, failed-attempt, and lockout controls.
+- session lifecycle, failed-attempt, lockout, and required MFA controls.
 
-This slice creates the storage and use cases needed before login is introduced.
+The identity foundation must provide the storage and use cases needed before
+login is introduced.
 
 ## Main Tables
 
@@ -60,8 +67,16 @@ This slice creates the storage and use cases needed before login is introduced.
 
 - activation token flow;
 - `POST /api/v1/auth/login`;
-- `POST /api/v1/auth/refresh`;
 - `POST /api/v1/auth/logout`;
+- `GET /api/v1/auth/me` and a CSRF bootstrap endpoint;
+- Spring Security authentication and Spring Session JDBC storage in PostgreSQL;
+- idle/absolute timeout, session rotation, and revocation after security changes;
+- required MFA, step-up, and safe authentication/authorization errors;
 - password reset;
-- JWT access and refresh token storage;
-- failed login attempts and lockout.
+- failed login attempts, shared abuse controls, and lockout;
+- security audit records and positive/negative authorization tests.
+
+Browser authentication uses server-side sessions in the current direction.
+OAuth access/refresh tokens for native mobile clients, partners, or other API
+clients are a separate future design; `/auth/refresh` is not part of this
+browser-session flow.

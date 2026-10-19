@@ -1,50 +1,39 @@
+
 spring:
   application:
     name: core
+
+  config:
+    import: "optional:file:./.env[.properties]"
+
   autoconfigure:
-    exclude: org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration
+    exclude:
+      - org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration
+
   datasource:
-    url: ${ITECHWX_DB_URL:jdbc:postgresql://localhost:5432/core_banking}
-    username: postgres
-    password: postgres
+    url: ${DB_CONNECTION}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
+
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: false
     properties:
       hibernate:
         format_sql: false
+
   flyway:
     enabled: true
-  jackson:
-    serialization:
-      indent-output: true
+
   threads:
     virtual:
       enabled: true
+
   profiles:
     active: local
 
 server:
   port: 8080
-management:
-  endpoints:
-    web:
-      exposure:
-        include:
-          - health
-          - info
-  endpoint:
-    health:
-      show-details: never
-
----
-# Unauthenticated customer lookup is for isolated local synthetic data only.
-spring:
-  config:
-    activate:
-      on-profile: local
-server:
-  address: 127.0.0.1
