@@ -3,9 +3,16 @@
 For the Vietnamese implementation checklist, start with
 [Hướng dẫn triển khai auth bằng tiếng Việt](auth-implementation-guide.vi.md).
 
-Status: design proposal, risk R3. The SQL below is a reviewable draft for new
-tables, not a registered Flyway migration. It has not been executed. Existing
-Java entities, runtime configuration, dependencies, and databases are unchanged.
+For the authentication-first staff login slice, see
+[Thiết kế DB đăng nhập nhân viên bằng session](staff-authentication-db-design.vi.md).
+That slice defers the RBAC tables to authorization without granting business
+API access based on authentication alone.
+
+Status: schema proposal, risk R3. The SQL below is a reviewable draft for new
+tables, not a registered Flyway migration. It has not been executed. Target JPA
+mappings now exist for identity user, credential, and login state, with offline
+PostgreSQL metadata/DDL tests. Runtime authentication/session, dependencies, and
+databases have not been changed by that mapping work.
 
 This proposal follows `SECURITY.md`, `CODING_STANDARD.md`, and the internal
 numeric ID plus public UUID convention in `identity-module-design.md`.
@@ -340,9 +347,10 @@ authentication controls are in place.
    cannot provide invented precise event timestamps or timezone information.
 4. Map entities to the new schema and add domain/application ports and use cases
    for owner-verified provisioning, password setup, status changes, and role
-   assignment. The currently edited entity still maps to `appuser`; its
-   credential fields move to `identity_credential`. Replace Java `LocalDate`
-   audit timestamps with `Instant` and add optimistic locking.
+   assignment. Target mappings now use `identity_user`, separate
+   `identity_credential`/`identity_login_state`, `Instant` audit timestamps and
+   optimistic locking. Database migration and persistence integration tests
+   remain required before deploying these mappings against an existing schema.
 5. Add session migrations from the resolved framework artifact, then implement
    Spring Security authentication, CSRF, cookie settings, MFA, abuse controls,
    status/version checks, logout, and bounded session lifetimes. This includes

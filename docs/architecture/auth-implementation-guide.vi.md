@@ -7,7 +7,13 @@ một việc khi đã có code và kết quả kiểm tra tương ứng.
 
 - [DDL và thiết kế database chi tiết](auth-session-schema-proposal.md).
 - [Ranh giới và API mục tiêu của identity module](identity-module-design.md).
+- [Thiết kế DB cho bước authentication nhân viên trước](staff-authentication-db-design.vi.md).
 - [Quay lại README](../../README.md).
+
+Theo phạm vi hiện tại, làm authentication nhân viên trước theo tài liệu riêng
+ở trên. Checklist dưới đây vẫn mô tả mục tiêu auth tổng thể; các bảng RBAC được
+làm ở bước authorization sau. Chưa có authorization thì chưa mở API nghiệp vụ
+chỉ vì người dùng đã đăng nhập.
 
 ## Nhớ nhanh
 
@@ -55,9 +61,10 @@ Các trường theo bản đề xuất: `id`, `public_id`, `username`,
 `username_normalized`, `owner_type`, `owner_id`, `status`, `security_version`,
 `created_at`, `updated_at`, `version`.
 
-- [ ] Sau khi chốt migration/chuyển dữ liệu, sửa mapping của
-  [IdentityUserJpaEntity](../../src/main/java/com/quinnbank/core/auth/adapter/out/persistent/identity_user/IdentityUserJpaEntity.java)
-  từ `appuser` sang `identity_user`; thêm ID nội bộ và public UUID theo thiết kế.
+- [x] Sửa JPA mapping của
+  [IdentityUserJpaEntity](../../src/main/java/com/quinnbank/core/auth/adapter/out/persistence/identity_user/IdentityUserJpaEntity.java)
+  từ `appuser` sang `identity_user`, ID nội bộ `Long`, public UUID, owner, status,
+  security version và audit timestamps. Đây là mapping đích, chưa migrate DB.
 - [ ] Tạo migration với unique `public_id`, unique `username_normalized`,
   index `(owner_type, owner_id)` và check status/owner type.
 - [ ] Đăng ký và đăng nhập dùng cùng quy tắc chuẩn hóa username. Bản DDL đề xuất
@@ -71,8 +78,9 @@ Các trường theo bản đề xuất: `id`, `public_id`, `username`,
 - [ ] Phân biệt `version` để chống ghi đè đồng thời với `security_version` để
   phát hiện session cũ. Việc vô hiệu hóa phải cập nhật version bảo mật và audit
   trong cùng transaction.
-- [ ] Chuyển password và yêu cầu đổi mật khẩu sang credential. Chỉ loại bỏ các
-  cờ khóa/hết hạn cũ khi đã xác định quy tắc thay thế và kế hoạch giữ dữ liệu.
+- [x] Chuyển password và yêu cầu đổi mật khẩu sang credential; thay cờ trạng
+  thái cũ bằng identity status và bảng login state. Người dùng xác nhận local
+  không có dữ liệu cần giữ; thay đổi này chưa chuyển đổi database đã áp dụng V6.
 - [ ] Test username trùng sau chuẩn hóa, owner không hợp lệ, chuyển trạng thái
   sai, truy cập sai scope, xung đột cập nhật và session của user bị vô hiệu hóa.
 
@@ -87,8 +95,9 @@ là liên kết logic; SQL hiện chưa chứng minh owner tồn tại trong CIF
 Các trường: `user_id` vừa là PK vừa là FK, `password_hash`,
 `password_changed_at`, `must_change_password`, timestamps và `version`.
 
-- [ ] Hoàn thiện entity persistence. Có thể đặt tên `IdentityCredentialJpaEntity`
-  để phân biệt với domain model; không dùng entity làm request/response DTO.
+- [x] Hoàn thiện mapping `IdentityCredentialJpaEntity`: shared PK/FK `user_id`,
+  hash, `Instant passwordChangedAt`, yêu cầu đổi password, timestamps và version.
+  Không dùng entity làm request/response DTO; migration DB vẫn chưa thực hiện.
 - [ ] Tạo FK tới `identity_user.id`, bảo đảm mỗi user tối đa một credential
   trong mô hình password hiện tại. Pending user có thể chưa có credential.
 - [ ] Dùng password encoder đã được phê duyệt qua adapter; lưu toàn bộ encoded
@@ -250,17 +259,17 @@ một bản sao audit entity/repository.
 Mỗi bước đi trọn từ migration đến use case và test có ý nghĩa. Không mở endpoint
 nhạy cảm chỉ vì đã tạo xong entity hoặc bảng.
 
-## Việc tiếp theo với file đang mở
+## Trạng thái mapping và việc tiếp theo
 
-Với `IdentityUserJpaEntity`, thứ tự hợp lý là:
+Đã có mapping đích cho user, credential và login state; `createdAt` dùng
+`Instant`, không còn `LocalDate`. Đã bỏ placeholder session tự viết; hai bảng
+session sẽ do Spring Session JDBC quản lý. Có test metadata/DDL PostgreSQL
+không kết nối DB cho ba entity mới.
 
-1. Chốt migration/chuyển dữ liệu trước khi đổi `@Table` và kiểu ID.
-2. Giữ dữ liệu identity trong user; đưa password và yêu cầu đổi mật khẩu sang
-   credential, với quy tắc chuyển dữ liệu rõ ràng cho các cờ hiện có.
-3. Thêm owner linkage, status, username chuẩn hóa, hai loại version và timestamps
-   theo thiết kế; `createdAt` hiện còn là `LocalDate` cần được xử lý.
-4. Hoàn thiện hai entity và persistence mapping đầu tiên, rồi test với migration
-   trên DB cô lập; sau đó nối domain/application qua port và audit.
+Việc tiếp theo là đối chiếu lịch sử Flyway, tạo migration phù hợp schema local
+và kiểm tra trên PostgreSQL synthetic cô lập. Source V1-V7 đã bị xóa ở commit
+trước; không tự tạo lại V1 hoặc xem DDL bảng mới là migration nâng cấp V6.
+Sau bước schema mới nối domain/application qua port, use case và audit.
 
 ## Những việc ngoài các bảng trên vẫn cần làm
 
