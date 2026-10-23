@@ -11,7 +11,8 @@ import java.util.UUID;
 public interface CustomerJpaRepository extends JpaRepository<CustomerJpaEntity, UUID> {
     boolean existsByEmail(String email);
 
-    @Query("""
+    @Query(
+        """
             select new com.quinnbank.core.cif.application.result.GetCustomerByIdResult(
                 customer.id, customer.firstName, customer.lastName, customer.email,
                 customer.phone,
@@ -19,6 +20,7 @@ public interface CustomerJpaRepository extends JpaRepository<CustomerJpaEntity, 
                     coalesce(customer.lastName, ''))), ''))
             from CustomerJpaEntity customer
             where customer.id = :customerId
-            """)
+        """
+    )
     Optional<GetCustomerByIdResult> findDetailsById(@Param("customerId") UUID customerId);
 }

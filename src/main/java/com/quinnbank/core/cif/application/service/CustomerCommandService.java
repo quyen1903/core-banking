@@ -40,15 +40,15 @@ public final class CustomerCommandService implements CommandCustomerUseCase {
             throw new DuplicateCustomerEmailException("Customer email is already registered.");
         }
         Customer customer = Customer.register(
-                customerNumbers.nextCustomerNumber(), 
-                command.firstName(), 
-                command.lastName(),
-                email, 
-                command.phone(), 
-                command.officeId(), 
-                command.externalId(), 
-                LocalDateTime.now(clock)
-            );
+            customerNumbers.nextCustomerNumber(), 
+            command.firstName(), 
+            command.lastName(),
+            email, 
+            command.phone(), 
+            command.officeId(), 
+            command.externalId(), 
+            LocalDateTime.now(clock)
+        );
         customers.save(customer);
         return new RegisterCustomerResult(customer.getId(), customer.getStatus().name());
     }

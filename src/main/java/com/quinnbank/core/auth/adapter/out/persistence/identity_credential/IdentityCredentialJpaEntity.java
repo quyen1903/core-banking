@@ -27,8 +27,11 @@ public class IdentityCredentialJpaEntity {
 
     @MapsId
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false, updatable = false,
-            foreignKey = @ForeignKey(name = "fk_identity_credential_user"))
+    @JoinColumn(
+        name = "user_id", 
+        nullable = false, 
+        updatable = false,
+        foreignKey = @ForeignKey(name = "fk_identity_credential_user"))
     IdentityUserJpaEntity user;
 
     @Column(name = "password_hash", nullable = false, length = 512)

@@ -1,7 +1,6 @@
 package com.quinnbank.core.cif.application.command;
 
 import com.quinnbank.core.cif.domain.model.Customer;
-import jakarta.validation.constraints.Size;
 import java.util.UUID;
 
 public record UpdateCustomerCommand(
