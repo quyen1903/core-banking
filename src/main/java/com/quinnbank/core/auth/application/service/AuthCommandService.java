@@ -53,6 +53,7 @@ public class AuthCommandService {
         PasswordCredential credential = PasswordCredential.create(auth.getId(), passwordHash, Instant.now(), false);
 
         
+        
         return new RegisterResult();
     }
 }

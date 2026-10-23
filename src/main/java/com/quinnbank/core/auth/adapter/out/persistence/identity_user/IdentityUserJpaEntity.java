@@ -39,7 +39,7 @@ import java.util.UUID;
 public class IdentityUserJpaEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    UUID id;
 
     @Column(name = "public_id", nullable = false, updatable = false)
     UUID publicId;

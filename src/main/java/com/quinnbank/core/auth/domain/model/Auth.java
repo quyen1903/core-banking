@@ -4,10 +4,12 @@ import java.util.Locale;
 import java.util.UUID;
 import com.quinnbank.core.auth.domain.enums.IdentityOwnerType;
 
+import lombok.Getter;
+
+@Getter 
 public final class Auth {
     private UUID id;
     private String username;
-    private String password;
     private IdentityOwnerType ownerType;
 
     private Auth(
