@@ -1,10 +1,13 @@
 package com.quinnbank.core.auth.application.service;
 
+import java.time.Instant;
+
 import com.quinnbank.core.auth.application.command.RegisterCommand;
 import com.quinnbank.core.auth.application.port.out.AuthWritePort;
 import com.quinnbank.core.auth.application.port.out.PasswordHashingPort;
 import com.quinnbank.core.auth.application.result.RegisterResult;
 import com.quinnbank.core.auth.domain.model.Auth;
+import com.quinnbank.core.auth.domain.model.PasswordCredential;
 
 /**
  * 
@@ -45,6 +48,9 @@ public class AuthCommandService {
 
         //4 Hash password using password encoder
         String passwordHash = passwordHashingPort.encode(command.password());
+
+        //5 Create credential containing password hash
+        PasswordCredential credential = PasswordCredential.create(auth.getId(), passwordHash, Instant.now(), false);
 
         
         return new RegisterResult();
