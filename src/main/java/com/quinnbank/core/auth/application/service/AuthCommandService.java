@@ -2,12 +2,15 @@ package com.quinnbank.core.auth.application.service;
 
 import java.time.Instant;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.quinnbank.core.auth.application.command.RegisterCommand;
 import com.quinnbank.core.auth.application.port.out.AuthWritePort;
 import com.quinnbank.core.auth.application.port.out.PasswordHashingPort;
 import com.quinnbank.core.auth.application.result.RegisterResult;
 import com.quinnbank.core.auth.domain.model.Auth;
 import com.quinnbank.core.auth.domain.model.PasswordCredential;
+
 
 /**
  * 
@@ -33,6 +36,7 @@ public class AuthCommandService {
         this.passwordHashingPort = passwordHashingPort;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public RegisterResult register(RegisterCommand command) {
         // Registration logic here
         //1 Normalize and validate username
@@ -52,8 +56,8 @@ public class AuthCommandService {
         //5 Create credential containing password hash
         PasswordCredential credential = PasswordCredential.create(auth.getId(), passwordHash, Instant.now(), false);
 
-        
-        
+        //6 Save identity, credential and audit in the same transaction
+        authWritePort.save(auth);
         return new RegisterResult();
     }
 }

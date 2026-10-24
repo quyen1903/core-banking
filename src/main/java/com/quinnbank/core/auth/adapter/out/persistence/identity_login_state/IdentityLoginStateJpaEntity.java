@@ -13,6 +13,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
+import java.util.UUID;
 import java.time.Instant;
 
 @Entity
@@ -31,7 +32,7 @@ import java.time.Instant;
 public class IdentityLoginStateJpaEntity {
     @Id
     @Column(name = "user_id", nullable = false, updatable = false)
-    Long userId;
+    UUID userId;
 
     @MapsId
     @OneToOne(fetch = FetchType.LAZY, optional = false)

@@ -97,3 +97,14 @@ Persistence Adapter ─────────> JPA Repository
 Configuration ───────────────> Service + Adapter to connect
 
 ```
+
+### Customer Persistence Flow
+
+1. The application service creates a `Customer` domain object through its factory method, which enforces the domain's business rules.
+2. The application service calls `CustomerWritePort.save(customer)`.
+3. `CustomerWritePersistenceAdapter`, which implements `CustomerWritePort`, handles the call.
+4. The adapter uses `CustomerPersistenceMapper` to convert the domain object into a new `CustomerJpaEntity`.
+5. The adapter calls `CustomerJpaRepository.saveAndFlush(entity)`.
+6. Spring Data JPA delegates persistence to Hibernate, which executes the SQL needed to synchronize the entity with the database.
+
+> **Note:** `flush` does not commit the transaction. The changes become committed only when the enclosing transaction commits successfully.

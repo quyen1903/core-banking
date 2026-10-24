@@ -18,6 +18,10 @@ import jakarta.persistence.Version;
 import java.time.Instant;
 import java.util.UUID;
 
+/**
+ * JPA entity representing an identity user in the system.
+ * this file describe how Java object is mapped to the database table "identity_user" and its columns.
+ */
 @Entity
 @Table(
     name = "identity_user",
@@ -38,7 +42,6 @@ import java.util.UUID;
 )
 public class IdentityUserJpaEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     UUID id;
 
     @Column(name = "public_id", nullable = false, updatable = false)
