@@ -1,19 +1,19 @@
 package com.quinnbank.core.auth.adapter.out.persistence.identity_user;
 
-import com.quinnbank.core.auth.domain.model.Auth;
+import com.quinnbank.core.auth.domain.model.IdentityUser;
 
-//convert the domain IdentityUSer into new JPA entity for persisting into database
+// Converts the domain IdentityUser into a new JPA entity for persistence.
 public class IdentityUserPersistenceMapper {
 
     private IdentityUserPersistenceMapper() {}
 
-    static IdentityUserJpaEntity toNewEntity(Auth auth) {
+    static IdentityUserJpaEntity toNewEntity(IdentityUser identityUser) {
         IdentityUserJpaEntity entity = new IdentityUserJpaEntity();
-        entity.id = auth.getId();
-        entity.publicId = auth.getId();
-        entity.username = auth.getUsername();
-        entity.usernameNormalized = Auth.normalizeUsername(auth.getUsername());
-        entity.ownerType = auth.getOwnerType();
+        entity.id = identityUser.getId();
+        entity.publicId = identityUser.getId();
+        entity.username = identityUser.getUsername();
+        entity.usernameNormalized = IdentityUser.normalizeUsername(identityUser.getUsername());
+        entity.ownerType = identityUser.getOwnerType();
         return entity;
     }
 }

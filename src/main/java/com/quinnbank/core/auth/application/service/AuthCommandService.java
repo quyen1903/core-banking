@@ -4,11 +4,11 @@ import java.time.Instant;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import com.quinnbank.core.auth.application.command.RegisterCommand;
-import com.quinnbank.core.auth.application.port.out.AuthWritePort;
+import com.quinnbank.core.auth.application.command.RegisterIdentityUserCommand;
+import com.quinnbank.core.auth.application.port.out.IdentityUserWritePort;
 import com.quinnbank.core.auth.application.port.out.PasswordHashingPort;
-import com.quinnbank.core.auth.application.result.RegisterResult;
-import com.quinnbank.core.auth.domain.model.Auth;
+import com.quinnbank.core.auth.application.result.RegisterIdentityUserResult;
+import com.quinnbank.core.auth.domain.model.IdentityUser;
 import com.quinnbank.core.auth.domain.model.PasswordCredential;
 
 
@@ -18,46 +18,46 @@ import com.quinnbank.core.auth.domain.model.PasswordCredential;
  * 1Verify the registration request and identify the customer permitted to link
  * 1 Normalize and validate username
  * 2 Check if username is already in use
- * 3 Call Auth.create(...) to create identity
+ * 3 Call IdentityUser.create(...) to create identity
  * 4 Hash password using password encoder
  * 5 Create credential containing password hash
  * 6 Save identity, credential and audit in the same transaction
  * 7 Return safe result to client
  */
+@Transactional(rollbackFor = Exception.class)
 public class AuthCommandService {
-    AuthWritePort authWritePort;
+    IdentityUserWritePort identityUserWritePort;
     PasswordHashingPort passwordHashingPort;
 
     AuthCommandService(
-        AuthWritePort authWritePort, 
+        IdentityUserWritePort identityUserWritePort,
         PasswordHashingPort passwordHashingPort
     ) {
-        this.authWritePort = authWritePort;
+        this.identityUserWritePort = identityUserWritePort;
         this.passwordHashingPort = passwordHashingPort;
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public RegisterResult register(RegisterCommand command) {
+    public RegisterIdentityUserResult register(RegisterIdentityUserCommand command) {
         // Registration logic here
         //1 Normalize and validate username
-        String normalizedUsername = Auth.normalizeUsername(command.username());
+        String normalizedUsername = IdentityUser.normalizeUsername(command.username());
 
         //2 Check if username is already in use
-        if (normalizedUsername == null || authWritePort.existsByUsername(normalizedUsername)) {
+        if (normalizedUsername == null || identityUserWritePort.existsByUsernameNormalized(normalizedUsername)) {
             throw new IllegalArgumentException("Username is required");
         }
 
-        //3 Call Auth.create(...) to create identity
-        Auth auth = Auth.create(normalizedUsername, command.ownerType());
+        //3 Call IdentityUser.create(...) to create identity
+        IdentityUser identityUser = IdentityUser.create(normalizedUsername, command.ownerType());
 
         //4 Hash password using password encoder
         String passwordHash = passwordHashingPort.encode(command.password());
 
         //5 Create credential containing password hash
-        PasswordCredential credential = PasswordCredential.create(auth.getId(), passwordHash, Instant.now(), false);
+        PasswordCredential credential = PasswordCredential.create(identityUser.getId(), passwordHash, Instant.now(), false);
 
         //6 Save identity, credential and audit in the same transaction
-        authWritePort.save(auth);
-        return new RegisterResult();
+        identityUserWritePort.save(identityUser);
+        return new RegisterIdentityUserResult();
     }
 }

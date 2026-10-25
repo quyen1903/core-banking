@@ -5,17 +5,17 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import com.quinnbank.core.auth.application.port.out.IdentityUserWritePort;
-import com.quinnbank.core.auth.domain.model.Auth;
+import com.quinnbank.core.auth.domain.model.IdentityUser;
 import com.quinnbank.core.cif.application.DuplicateCustomerEmailException;
 
 
 /**
  * A persistent adapter for writing identity user data to the database.
  */
-public class IdentityUserWritePersistentAdapter implements IdentityUserWritePort {
+public class IdentityUserWritePersistenceAdapter implements IdentityUserWritePort {
     private final IdentityUserJpaRepository repository;
 
-    public IdentityUserWritePersistentAdapter(IdentityUserJpaRepository repository) {
+    public IdentityUserWritePersistenceAdapter(IdentityUserJpaRepository repository) {
         this.repository = repository;
     }
 
@@ -25,8 +25,8 @@ public class IdentityUserWritePersistentAdapter implements IdentityUserWritePort
     }
 
     @Override
-    public void save(Auth auth) {
-        IdentityUserJpaEntity entity = IdentityUserPersistenceMapper.toNewEntity(auth);
+    public void save(IdentityUser identityUser) {
+        IdentityUserJpaEntity entity = IdentityUserPersistenceMapper.toNewEntity(identityUser);
         try {
             repository.saveAndFlush(entity);
         } catch (DataIntegrityViolationException exception) {

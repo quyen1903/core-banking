@@ -7,12 +7,12 @@ import com.quinnbank.core.auth.domain.enums.IdentityOwnerType;
 import lombok.Getter;
 
 @Getter 
-public final class Auth {
+public final class IdentityUser {
     private UUID id;
     private String username;
     private IdentityOwnerType ownerType;
 
-    private Auth(
+    private IdentityUser(
         UUID id, 
         String username, 
         IdentityOwnerType ownerType
@@ -22,11 +22,11 @@ public final class Auth {
         this.ownerType = ownerType;
     }
 
-    public static Auth create(
+    public static IdentityUser create(
         String username, 
         IdentityOwnerType ownerType
     ) {
-        return new Auth(
+        return new IdentityUser(
             UUID.randomUUID(), 
             username, 
             ownerType
