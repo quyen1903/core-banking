@@ -66,7 +66,7 @@ public class IdentityUserJpaEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 32)
-    IdentityStatus status = IdentityStatus.PENDING_ACTIVATION;
+    IdentityStatus status;
 
     @Column(name = "security_version", nullable = false)
     long securityVersion;

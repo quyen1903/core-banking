@@ -4,18 +4,25 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.Version;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "customers")
+@Table(
+    name = "customers",
+    uniqueConstraints = {
+        @UniqueConstraint(name = "uq_customers_customer_number", columnNames = "customer_number"),
+        @UniqueConstraint(name = "uq_customers_email", columnNames = "email")
+    }
+)
 public class CustomerJpaEntity {
     @Id
     UUID id;
 
-    @Column(name = "customer_number", nullable = false, unique = true, length = 50)
+    @Column(name = "customer_number", nullable = false, length = 50)
     String customerNumber;
 
     @Column(name = "first_name", length = 255)
@@ -30,7 +37,7 @@ public class CustomerJpaEntity {
     @Column(name = "external_id", length = 50)
     String externalId;
 
-    @Column(unique = true, length = 255)
+    @Column(length = 255)
     String email;
 
     @Column(length = 50)

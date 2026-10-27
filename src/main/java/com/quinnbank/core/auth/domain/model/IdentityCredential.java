@@ -1,19 +1,21 @@
 package com.quinnbank.core.auth.domain.model;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.UUID;
 
-public final class  PasswordCredential {
+import lombok.Getter;
+
+@Getter
+public final class  IdentityCredential {
     private UUID identityPublicId;
     private String passwordHash;
-    private Date passwordChangedAt;
+    private Instant passwordChangedAt;
     private boolean mustChangePassword;
 
-    private PasswordCredential(
+    private IdentityCredential(
         UUID identityPublicId, 
         String passwordHash, 
-        Date passwordChangedAt, 
+        Instant passwordChangedAt, 
         boolean mustChangePassword
     ) {
         this.identityPublicId = identityPublicId;
@@ -22,12 +24,17 @@ public final class  PasswordCredential {
         this.mustChangePassword = mustChangePassword;
     }
 
-    public static PasswordCredential create(
+    public static IdentityCredential create(
         UUID identityPublicId, 
         String passwordHash, 
         Instant passwordChangedAt, 
         boolean mustChangePassword
     ) {
-        return new PasswordCredential(identityPublicId, passwordHash, Date.from(passwordChangedAt), mustChangePassword);
+        return new IdentityCredential(
+            identityPublicId, 
+            passwordHash, 
+            passwordChangedAt, 
+            mustChangePassword
+        );
     }
 }

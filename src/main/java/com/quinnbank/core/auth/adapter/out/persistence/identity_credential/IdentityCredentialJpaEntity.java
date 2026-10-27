@@ -14,6 +14,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Table(name = "identity_credential", check = {
@@ -23,7 +24,7 @@ import java.time.Instant;
 public class IdentityCredentialJpaEntity {
     @Id
     @Column(name = "user_id", nullable = false, updatable = false)
-    Long userId;
+    UUID userId;
 
     @MapsId
     @OneToOne(fetch = FetchType.LAZY, optional = false)

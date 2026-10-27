@@ -7,7 +7,7 @@ public class IdentityUserPersistenceMapper {
 
     private IdentityUserPersistenceMapper() {}
 
-    static IdentityUserJpaEntity toNewEntity(IdentityUser identityUser) {
+    public static IdentityUserJpaEntity toNewEntity(IdentityUser identityUser) {
         IdentityUserJpaEntity entity = new IdentityUserJpaEntity();
         entity.id = identityUser.getId();
         entity.publicId = identityUser.getId();

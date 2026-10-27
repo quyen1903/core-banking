@@ -40,7 +40,7 @@ public class CustomerWritePersistenceAdapter implements CustomerWritePort {
         for (Throwable cause = failure; cause != null; cause = cause.getCause()) {
             if (cause instanceof ConstraintViolationException violation
                     && "23505".equals(violation.getSQLState())
-                    && "customers_email_key".equals(violation.getConstraintName())) {
+                    && "uq_customers_email".equals(violation.getConstraintName())) {
                 return true;
             }
         }
@@ -60,6 +60,6 @@ public class CustomerWritePersistenceAdapter implements CustomerWritePort {
         if(command.email() != null) entity.email = command.email();
 
         entity.updatedAt = java.time.LocalDateTime.now();
-        repository.saveAndFlush(entity);
+        repository.save(entity);
     }
 }
