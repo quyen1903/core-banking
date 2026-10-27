@@ -26,5 +26,4 @@ public record RegisterCustomerRequest(
         
         @Size(max = 50)
         String externalId
-) {
-}
+) {}
