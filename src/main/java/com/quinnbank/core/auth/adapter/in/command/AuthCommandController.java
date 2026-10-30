@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthCommandController {
-    CommandAuthUseCase authCommandUseCase;
+    CommandAuthUseCase command;
 
-    AuthCommandController(CommandAuthUseCase authCommandUseCase) {
-        this.authCommandUseCase = authCommandUseCase;
+    AuthCommandController(CommandAuthUseCase command) {
+        this.command = command;
     }
 
     @PostMapping(
@@ -26,7 +26,7 @@ public class AuthCommandController {
         consumes = "application/json"
     )
     public ResponseEntity<RegisterIdentityUserResponse> registerUser(RegisterUserRequest request) {
-        RegisterIdentityUserResult result = authCommandUseCase.register(UserHttpMapper.toRegisterCommand(request));
+        RegisterIdentityUserResult result = command.register(UserHttpMapper.toRegisterCommand(request));
         return ResponseEntity.ok(UserHttpMapper.toRegisterResponse(result));
     }
 }

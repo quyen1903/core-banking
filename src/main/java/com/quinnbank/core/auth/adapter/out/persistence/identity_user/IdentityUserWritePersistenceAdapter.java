@@ -3,6 +3,7 @@ package com.quinnbank.core.auth.adapter.out.persistence.identity_user;
 import org.hibernate.exception.ConstraintViolationException;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Repository;
 
 import com.quinnbank.core.auth.application.port.out.IdentityUserWritePort;
 import com.quinnbank.core.auth.domain.model.IdentityUser;
@@ -12,6 +13,7 @@ import com.quinnbank.core.cif.application.DuplicateCustomerEmailException;
 /**
  * A persistent adapter for writing identity user data to the database.
  */
+@Repository 
 public class IdentityUserWritePersistenceAdapter implements IdentityUserWritePort {
     private final IdentityUserJpaRepository repository;
 

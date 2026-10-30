@@ -2,9 +2,8 @@ package com.quinnbank.core.auth.application.service;
 
 import java.time.Instant;
 
-import org.springframework.transaction.annotation.Transactional;
-
 import com.quinnbank.core.auth.application.command.RegisterIdentityUserCommand;
+import com.quinnbank.core.auth.application.port.in.CommandAuthUseCase;
 import com.quinnbank.core.auth.application.port.out.IdentityCredentialWritePort;
 import com.quinnbank.core.auth.application.port.out.IdentityUserWritePort;
 import com.quinnbank.core.auth.application.port.out.PasswordHashingPort;
@@ -13,14 +12,12 @@ import com.quinnbank.core.auth.domain.model.IdentityUser;
 import com.quinnbank.core.auth.domain.model.IdentityCredential;
 
 
+public final class AuthCommandService implements CommandAuthUseCase {
+    private final IdentityUserWritePort identityUserWritePort;
+    private final IdentityCredentialWritePort  identityCredentialWritePort;
+    private final PasswordHashingPort passwordHashingPort;
 
-@Transactional(rollbackFor = Exception.class)
-public class AuthCommandService {
-    IdentityUserWritePort identityUserWritePort;
-    IdentityCredentialWritePort identityCredentialWritePort;
-    PasswordHashingPort passwordHashingPort;
-
-    AuthCommandService(
+    public AuthCommandService(
         IdentityUserWritePort identityUserWritePort,
         IdentityCredentialWritePort identityCredentialWritePort,
         PasswordHashingPort passwordHashingPort
@@ -41,6 +38,7 @@ public class AuthCommandService {
      * 6 Save identity, credential and audit in the same transaction
      * 7 Return safe result to client
      */
+    @Override
     public RegisterIdentityUserResult register(RegisterIdentityUserCommand command) {
         // Registration logic here
         //1 Normalize and validate username
