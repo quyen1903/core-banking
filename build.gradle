@@ -28,6 +28,9 @@ dependencies {
     implementation 'org.flywaydb:flyway-database-postgresql'
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'org.postgresql:postgresql'
+    // Required by Spring's Argon2 encoder; Boot 4.1.0 does not manage this version.
+    // Dependency decision: docs/architecture/argon2-runtime-dependency.md
+    runtimeOnly 'org.bouncycastle:bcprov-jdk18on:1.86'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-actuator-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'

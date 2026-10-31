@@ -37,3 +37,14 @@ spring:
 
 server:
   port: 8080
+
+---
+
+# Temporary development access is restricted to the isolated local profile.
+spring:
+  config:
+    activate:
+      on-profile: "local & !dev & !test & !qa & !uat & !staging & !pre-prod & !prod"
+
+server:
+  address: 127.0.0.1

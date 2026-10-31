@@ -1,4 +1,4 @@
-package com.quinnbank.core.auth.adapter.out;
+package com.quinnbank.core.auth.adapter.out.configuration;
 
 import com.quinnbank.core.auth.application.port.out.PasswordHashingPort;
 

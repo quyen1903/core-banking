@@ -50,7 +50,7 @@ public final class AuthCommandService implements CommandAuthUseCase {
         }
 
         //3 Call IdentityUser.create(...) to create identity
-        IdentityUser identityUser = IdentityUser.create(normalizedUsername, command.ownerType());
+        IdentityUser identityUser = IdentityUser.create(normalizedUsername, command.ownerType(), command.ownerId());
 
         //4 Hash password using password encoder
         String passwordHash = passwordHashingPort.encode(command.password());

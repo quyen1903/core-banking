@@ -14,6 +14,11 @@ public class IdentityUserPersistenceMapper {
         entity.username = identityUser.getUsername();
         entity.usernameNormalized = IdentityUser.normalizeUsername(identityUser.getUsername());
         entity.ownerType = identityUser.getOwnerType();
+        entity.status = identityUser.getStatus();
+        entity.securityVersion = identityUser.getSecurityVersion();
+        entity.createdAt = identityUser.getCreateAt();
+        entity.updatedAt = identityUser.getUpdateAt();
+        entity.version = identityUser.getVersion();
         return entity;
     }
 }

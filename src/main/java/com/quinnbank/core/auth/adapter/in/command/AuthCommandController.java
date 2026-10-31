@@ -6,8 +6,11 @@ import com.quinnbank.core.auth.adapter.in.mapper.UserHttpMapper;
 import com.quinnbank.core.auth.application.port.in.CommandAuthUseCase;
 import com.quinnbank.core.auth.application.result.RegisterIdentityUserResult;
 
+import jakarta.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -25,7 +28,11 @@ public class AuthCommandController {
         path = "/register",
         consumes = "application/json"
     )
-    public ResponseEntity<RegisterIdentityUserResponse> registerUser(RegisterUserRequest request) {
+    public ResponseEntity<RegisterIdentityUserResponse> registerUser(
+        @Valid
+        @RequestBody
+        RegisterUserRequest request
+    ) {
         RegisterIdentityUserResult result = command.register(UserHttpMapper.toRegisterCommand(request));
         return ResponseEntity.ok(UserHttpMapper.toRegisterResponse(result));
     }

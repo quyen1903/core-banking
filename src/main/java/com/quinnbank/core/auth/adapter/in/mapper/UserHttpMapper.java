@@ -13,7 +13,8 @@ public final class UserHttpMapper {
         return new RegisterIdentityUserCommand(
             request.username(),
             request.password(),
-            request.ownerType()
+            request.ownerType(),
+            request.ownerId()
         );
     }
 
