@@ -62,7 +62,7 @@ public final class IdentityUser {
             1L,
             Instant.now(),
             Instant.now(),
-            1L
+            null
         );
     }
 

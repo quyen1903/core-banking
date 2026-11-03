@@ -1,6 +1,7 @@
 package com.quinnbank.core.auth.adapter.out.persistence.identity_credential;
 
 import com.quinnbank.core.auth.adapter.out.persistence.identity_user.IdentityUserJpaEntity;
+
 import jakarta.persistence.CheckConstraint;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -42,7 +43,7 @@ public class IdentityCredentialJpaEntity {
     Instant passwordChangedAt;
 
     @Column(name = "must_change_password", nullable = false)
-    boolean mustChangePassword = true;
+    boolean mustChangePassword = false;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     Instant createdAt;
@@ -54,6 +55,5 @@ public class IdentityCredentialJpaEntity {
     @Column(name = "version", nullable = false)
     Long version;
 
-    protected IdentityCredentialJpaEntity() {
-    }
+    protected IdentityCredentialJpaEntity() {}
 }

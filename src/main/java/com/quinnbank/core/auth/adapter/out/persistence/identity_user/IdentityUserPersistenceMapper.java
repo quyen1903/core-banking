@@ -13,6 +13,7 @@ public class IdentityUserPersistenceMapper {
         entity.publicId = identityUser.getId();
         entity.username = identityUser.getUsername();
         entity.usernameNormalized = IdentityUser.normalizeUsername(identityUser.getUsername());
+        entity.ownerId = identityUser.getOwnerId();
         entity.ownerType = identityUser.getOwnerType();
         entity.status = identityUser.getStatus();
         entity.securityVersion = identityUser.getSecurityVersion();

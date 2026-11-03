@@ -56,7 +56,7 @@ public final class AuthCommandService implements CommandAuthUseCase {
         String passwordHash = passwordHashingPort.encode(command.password());
 
         //5 Create credential containing password hash
-        IdentityCredential credential = IdentityCredential.create(identityUser.getId(), passwordHash, Instant.now(), false);
+        IdentityCredential credential = IdentityCredential.create(identityUser.getId(), passwordHash, false);
 
         //6 Save identity, credential and audit in the same transaction
         identityUserWritePort.save(identityUser);

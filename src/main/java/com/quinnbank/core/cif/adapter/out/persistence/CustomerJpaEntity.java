@@ -58,7 +58,7 @@ public class CustomerJpaEntity {
     @Column(name = "updated_at", nullable = false)
     LocalDateTime updatedAt;
 
-    @Version
+    // @Version
     @Column(nullable = false)
     Long version;
 
