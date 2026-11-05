@@ -57,9 +57,9 @@ class CustomerCommandControllerTest {
         validator = new LocalValidatorFactoryBean();
         validator.afterPropertiesSet();
         mockMvc = MockMvcBuilders.standaloneSetup(new CustomerCommandController(registerCustomerUseCase))
-                .setControllerAdvice(new CifExceptionHandler())
-                .setValidator(validator)
-                .build();
+            .setControllerAdvice(new CifExceptionHandler())
+            .setValidator(validator)
+            .build();
     }
 
     @AfterEach
@@ -73,35 +73,35 @@ class CustomerCommandControllerTest {
                 .thenReturn(new RegisterCustomerResult(CUSTOMER_ID, "PENDING"));
 
         register(VALID_PAYLOAD)
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(content().json("""
-                        {"id":"00000000-0000-0000-0000-000000000123","status":"PENDING"}
-                        """))
-                .andExpect(jsonPath("$.email").doesNotExist())
-                .andExpect(jsonPath("$.customerNumber").doesNotExist());
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(content().json("""
+                    {"id":"00000000-0000-0000-0000-000000000123","status":"PENDING"}
+                    """))
+            .andExpect(jsonPath("$.email").doesNotExist())
+            .andExpect(jsonPath("$.customerNumber").doesNotExist());
 
         var command = ArgumentCaptor.forClass(RegisterCustomerCommand.class);
         verify(registerCustomerUseCase).registerCustomer(command.capture());
         assertEquals(new RegisterCustomerCommand(
-                "Synthetic", "Customer", "synthetic@example.invalid", "local-only", "local-only",
-                "synthetic-reference"), command.getValue());
+            "Synthetic", "Customer", "synthetic@example.invalid", "local-only", "local-only",
+            "synthetic-reference"), command.getValue());
     }
 
     @Test
     void registrationAllowsAbsentOptionalContactAndExternalReference() throws Exception {
         when(registerCustomerUseCase.registerCustomer(any()))
-                .thenReturn(new RegisterCustomerResult(CUSTOMER_ID, "PENDING"));
+            .thenReturn(new RegisterCustomerResult(CUSTOMER_ID, "PENDING"));
 
         register("""
-                {"firstName":"Synthetic","lastName":"Customer","officeId":"local-only"}
-                """)
-                .andExpect(status().isOk());
+            {"firstName":"Synthetic","lastName":"Customer","officeId":"local-only"}
+            """)
+            .andExpect(status().isOk());
 
         var command = ArgumentCaptor.forClass(RegisterCustomerCommand.class);
         verify(registerCustomerUseCase).registerCustomer(command.capture());
         assertEquals(new RegisterCustomerCommand(
-                "Synthetic", "Customer", null, null, "local-only", null), command.getValue());
+            "Synthetic", "Customer", null, null, "local-only", null), command.getValue());
     }
 
     @ParameterizedTest
@@ -136,7 +136,7 @@ class CustomerCommandControllerTest {
             default -> 50;
         };
         String payload = VALID_PAYLOAD.replaceAll(
-                "(\\\"" + field + "\\\"\\s*:\\s*)\\\"[^\\\"]*\\\"", "$1\"" + "x".repeat(allowedLength + 1) + "\"");
+            "(\\\"" + field + "\\\"\\s*:\\s*)\\\"[^\\\"]*\\\"", "$1\"" + "x".repeat(allowedLength + 1) + "\"");
 
         expectInvalidRequest(payload);
         verifyNoInteractions(registerCustomerUseCase);
@@ -148,19 +148,19 @@ class CustomerCommandControllerTest {
                 .thenThrow(new DuplicateCustomerEmailException("synthetic.secret@example.invalid"));
 
         register(VALID_PAYLOAD)
-                .andExpect(status().isConflict())
-                .andExpect(content().json("""
-                        {
-                          "code":"CUSTOMER_EMAIL_ALREADY_EXISTS",
-                          "message":"A customer with this email already exists."
-                        }
-                        """));
+            .andExpect(status().isConflict())
+            .andExpect(content().json("""
+                {
+                    "code":"CUSTOMER_EMAIL_ALREADY_EXISTS",
+                    "message":"A customer with this email already exists."
+                }
+                """));
     }
 
     @Test
     void domainRejectionDoesNotExposeInternalDetails() throws Exception {
         when(registerCustomerUseCase.registerCustomer(any()))
-                .thenThrow(new CustomerRegistrationRejectedException("synthetic internal rejection detail"));
+            .thenThrow(new CustomerRegistrationRejectedException("synthetic internal rejection detail"));
 
         expectInvalidRequest(VALID_PAYLOAD);
     }
@@ -168,13 +168,13 @@ class CustomerCommandControllerTest {
     @Test
     void notFoundHasStableSafeResponse() throws Exception {
         when(registerCustomerUseCase.registerCustomer(any()))
-                .thenThrow(CustomerNotFoundException.byId(CUSTOMER_ID));
+            .thenThrow(CustomerNotFoundException.byId(CUSTOMER_ID));
 
         register(VALID_PAYLOAD)
-                .andExpect(status().isNotFound())
-                .andExpect(content().json("""
-                        {"code":"CUSTOMER_NOT_FOUND","message":"Customer not found."}
-                        """));
+            .andExpect(status().isNotFound())
+            .andExpect(content().json("""
+                {"code":"CUSTOMER_NOT_FOUND","message":"Customer not found."}
+            """));
     }
 
     @ParameterizedTest
@@ -188,24 +188,26 @@ class CustomerCommandControllerTest {
     void commandControllerDoesNotExposeCustomerQueries() throws Exception {
         // The path exists for PATCH, but this controller must still reject GET.
         mockMvc.perform(get("/api/v1/customers/{id}", CUSTOMER_ID))
-                .andExpect(status().isMethodNotAllowed());
+            .andExpect(status()
+            .isMethodNotAllowed());
+
         verifyNoInteractions(registerCustomerUseCase);
     }
 
     private ResultActions register(String payload) throws Exception {
         return mockMvc.perform(post(REGISTRATION_PATH)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(payload));
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(payload));
     }
 
     private void expectInvalidRequest(String payload) throws Exception {
         register(payload)
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json("""
-                        {
-                          "code":"INVALID_CUSTOMER_REQUEST",
-                          "message":"The customer registration request is invalid."
-                        }
-                        """));
+            .andExpect(status().isBadRequest())
+            .andExpect(content().json("""
+            {
+                "code":"INVALID_CUSTOMER_REQUEST",
+                "message":"The customer registration request is invalid."
+            }
+            """));
     }
 }

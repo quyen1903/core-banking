@@ -31,8 +31,12 @@ class CifArchitectureTest {
 
     @Test
     void applicationAndDomainCompileWithoutAdaptersOrFrameworks() throws IOException {
-        List<Path> coreSources = Stream.concat(javaFiles(CIF_SOURCE.resolve("domain")).stream(),
-                javaFiles(CIF_SOURCE.resolve("application")).stream()).toList();
+        List<Path> coreSources = Stream
+        .concat(
+            javaFiles(CIF_SOURCE.resolve("domain")).stream(),
+            javaFiles(CIF_SOURCE.resolve("application"))
+            .stream())
+        .toList();
 
         compileWithJdkOnly("core", coreSources);
     }

@@ -30,8 +30,7 @@ class CustomerQueryServiceTest {
 
     @Test
     void returnsReadSnapshotWithoutReconstructingARegistrationAggregate() {
-        GetCustomerByIdResult snapshot = new GetCustomerByIdResult(CUSTOMER_ID, "Synthetic",
-                "Customer", "synthetic@example.invalid", "local-only-phone", "Synthetic Customer");
+        GetCustomerByIdResult snapshot = new GetCustomerByIdResult(CUSTOMER_ID, "Synthetic","Customer", "synthetic@example.invalid", "local-only-phone", "Synthetic Customer");
         when(customers.findById(CUSTOMER_ID)).thenReturn(Optional.of(snapshot));
 
         GetCustomerByIdResult result = service.getCustomerById(new GetCustomerByIdQuery(CUSTOMER_ID));
@@ -42,8 +41,7 @@ class CustomerQueryServiceTest {
 
     @Test
     void preservesLegacyRecordedFullNameWhenStructuredNamesAreAbsent() {
-        GetCustomerByIdResult legacySnapshot = new GetCustomerByIdResult(CUSTOMER_ID, null,
-                null, null, null, "Synthetic Legacy Customer");
+        GetCustomerByIdResult legacySnapshot = new GetCustomerByIdResult(CUSTOMER_ID, null,null, null, null, "Synthetic Legacy Customer");
         when(customers.findById(CUSTOMER_ID)).thenReturn(Optional.of(legacySnapshot));
 
         GetCustomerByIdResult result = service.getCustomerById(new GetCustomerByIdQuery(CUSTOMER_ID));
@@ -58,7 +56,7 @@ class CustomerQueryServiceTest {
         when(customers.findById(CUSTOMER_ID)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.getCustomerById(new GetCustomerByIdQuery(CUSTOMER_ID)))
-                .isInstanceOf(CustomerNotFoundException.class)
-                .hasMessageNotContaining(CUSTOMER_ID.toString());
+            .isInstanceOf(CustomerNotFoundException.class)
+            .hasMessageNotContaining(CUSTOMER_ID.toString());
     }
 }
