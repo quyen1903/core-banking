@@ -6,7 +6,7 @@ import java.util.UUID;
 import lombok.Getter;
 
 @Getter
-public final class  IdentityCredential {
+public final class IdentityCredential {
     private UUID userId;
     private UUID identityPublicId;
     private String passwordHash;
