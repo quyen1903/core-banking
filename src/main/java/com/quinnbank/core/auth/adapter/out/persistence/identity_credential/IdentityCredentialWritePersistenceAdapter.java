@@ -1,5 +1,8 @@
 package com.quinnbank.core.auth.adapter.out.persistence.identity_credential;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.stereotype.Repository;
 
 import com.quinnbank.core.auth.adapter.out.persistence.identity_user.IdentityUserJpaEntity;
@@ -29,5 +32,10 @@ public class IdentityCredentialWritePersistenceAdapter implements IdentityCreden
         }catch(Exception exception){
             throw new RuntimeException("Error occurred while saving identity credential", exception);
         }
+    }
+
+    @Override
+    public Optional<IdentityCredential> findByUserId(UUID userId) {
+        return repository.findByUserId(userId).map(IdentityCredentialPersistenceMapper::toDomain);
     }
 }

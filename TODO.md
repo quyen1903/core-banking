@@ -1,7 +1,5 @@
 # QuinnBank Core — Todo list
 
-[Français](TODO.fr.md)
-
 Updated: 13 September 2026. This backlog is based on the existing source code and documentation. The application and test suite were not run while preparing it. Verification tasks below do not imply that defects have been reproduced.
 
 This document change is R0 (documentation). Each task's risk label describes implementation risk under [AGENTS.md](AGENTS.md). Mark a task complete only when evidence satisfies its acceptance criteria.

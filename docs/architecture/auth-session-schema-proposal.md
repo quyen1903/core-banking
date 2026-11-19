@@ -1,10 +1,10 @@
 # Auth Database and Server-Side Session Proposal
 
-For the Vietnamese implementation checklist, start with
-[Hướng dẫn triển khai auth bằng tiếng Việt](auth-implementation-guide.vi.md).
+For the implementation checklist, start with
+[Auth implementation guide](auth-implementation-guide.md).
 
 For the authentication-first staff login slice, see
-[Thiết kế DB đăng nhập nhân viên bằng session](staff-authentication-db-design.vi.md).
+[Staff authentication database design with server-side sessions](staff-authentication-db-design.md).
 That slice defers the RBAC tables to authorization without granting business
 API access based on authentication alone.
 

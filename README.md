@@ -1,23 +1,23 @@
 # core-banking
 
-## Auth: hướng dẫn và việc cần làm
+## Auth: Implementation Guides and Next Steps
 
-- [Bắt đầu ở đây: checklist triển khai từng bảng auth bằng tiếng Việt](docs/architecture/auth-implementation-guide.vi.md).
-- [Thiết kế database, quan hệ và DDL PostgreSQL đề xuất](docs/architecture/auth-session-schema-proposal.md).
-- [Ranh giới và API mục tiêu của identity module](docs/architecture/identity-module-design.md).
+- [Start here: auth implementation checklist by table](docs/architecture/auth-implementation-guide.md).
+- [Proposed database design, relationships, and PostgreSQL DDL](docs/architecture/auth-session-schema-proposal.md).
+- [Identity module boundaries and target APIs](docs/architecture/identity-module-design.md).
 
-Hướng hiện tại: Spring Security + server-side session, lưu session bằng Spring
-Session JDBC trong PostgreSQL. Các tài liệu trên mô tả thiết kế và công việc
-cần làm; việc có entity hoặc DDL nháp chưa có nghĩa là tính năng đã triển khai.
+Current direction: Spring Security with server-side sessions stored in
+PostgreSQL through Spring Session JDBC. These documents describe the design
+and remaining work; an entity or draft DDL does not mean a feature is implemented.
 
 ```text
 src/
 ├── main/
-│   ├── java/com/quinnbank/core/        #Entire project is built based on SQRS pattern
+│   ├── java/com/quinnbank/core/        # Project structure follows the CQRS pattern
 │   │   ├── QuinnBankApplication.java
 │   │   │
-│   │   ├── customer/                         # Module Business
-│   │   │   ├── domain/            #Architech, Rules and State of business
+│   │   ├── customer/                         # Business module
+│   │   │   ├── domain/            # Business model, rules, and state
 │   │   │   │   ├── model/
 │   │   │   │   │   └── Customer.java
 │   │   │   │   ├── valueobject/
@@ -27,12 +27,12 @@ src/
 │   │   │   │   └── exception/
 │   │   │   │       └── CustomerRegistrationRejectedException.java
 │   │   │   │
-│   │   │   ├── application/        #Coordinate an use case, define port
+│   │   │   ├── application/        # Orchestrate use cases and define ports
 │   │   │   │   ├── port/
-│   │   │   │   │   ├── in/     #in-bound from the outside: HTTP, CLI, message customer, etc
+│   │   │   │   │   ├── in/     # Inbound calls from HTTP, CLI, message consumers, etc.
 │   │   │   │   │   │   ├── RegisterCustomerUseCase.java
 │   │   │   │   │   │   └── GetCustomerByIdUseCase.java
-│   │   │   │   │   └── out/    #Perform application requirement: Database operation, API calls, message sending etc
+│   │   │   │   │   └── out/    # Outbound operations: database access, API calls, messaging, etc.
 │   │   │   │   │       ├── CustomerWritePort.java
 │   │   │   │   │       ├── CustomerReadPort.java
 │   │   │   │   │       └── CustomerNumberGeneratorPort.java
@@ -67,7 +67,7 @@ src/
 │   │   │   │       └── generator/
 │   │   │   │           └── DefaultCustomerNumberGenerator.java
 │   │   │   │
-│   │   │   └── configuration/      #Initialize and connect service with Spring 
+│   │   │   └── configuration/      # Initialize and wire services with Spring
 │   │   │       ├── CustomerConfiguration.java
 │   │   │       └── TransactionalRegisterCustomerUseCase.java
 │   │   │
@@ -87,14 +87,14 @@ src/
     └── architecture/
 
 
-The direction of dependency
+Dependency direction
 Web Controller ──────────────> Input Port
 Application Service ─────────> Input Port       (implements)
 Application Service ─────────> Domain
 Application Service ─────────> Output Port
 Persistence Adapter ─────────> Output Port      (implements)
 Persistence Adapter ─────────> JPA Repository
-Configuration ───────────────> Service + Adapter to connect
+Configuration ───────────────> Service + Adapter wiring
 
 ```
 

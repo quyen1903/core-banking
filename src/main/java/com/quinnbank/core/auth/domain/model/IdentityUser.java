@@ -22,7 +22,7 @@ public final class IdentityUser {
     private Instant updateAt;
     private Long version;
 
-    private IdentityUser(
+    public IdentityUser(
         UUID id,
         UUID publicId,
         String username, 
@@ -30,7 +30,6 @@ public final class IdentityUser {
         UUID ownerId,
         IdentityStatus status,
         long securityVersion,
-        Instant createAt,
         Instant updateAt,
         Long version
     ) {
@@ -41,7 +40,7 @@ public final class IdentityUser {
         this.ownerId = ownerId;
         this.status = status;
         this.securityVersion = securityVersion;
-        this.createAt = createAt;
+        this.createAt = Instant.now();
         this.updateAt = updateAt;
         this.version = version;
     }
@@ -61,11 +60,10 @@ public final class IdentityUser {
             IdentityStatus.PENDING_ACTIVATION,
             1L,
             Instant.now(),
-            Instant.now(),
             null
         );
     }
-
+   
     public UUID getId() {
         return id;
     }

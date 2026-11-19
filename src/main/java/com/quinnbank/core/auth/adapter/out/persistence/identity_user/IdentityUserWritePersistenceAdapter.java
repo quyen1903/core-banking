@@ -1,5 +1,7 @@
 package com.quinnbank.core.auth.adapter.out.persistence.identity_user;
 
+import java.util.Optional;
+
 import org.hibernate.exception.ConstraintViolationException;
 
 import org.springframework.dao.DataIntegrityViolationException;
@@ -37,6 +39,12 @@ public class IdentityUserWritePersistenceAdapter implements IdentityUserWritePor
             }
             throw exception;
         }
+    }                            
+
+    @Override
+    public Optional<IdentityUser> findByUsernameNormalized(String usernameNormalized) {
+        // find record by normalized username, then convert into domain model
+        return repository.findByUsernameNormalized(usernameNormalized).map(IdentityUserPersistenceMapper::toDomain);
     }
 
     private boolean isNormalizedUsernameConflict(Throwable failure) {

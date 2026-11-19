@@ -1,16 +1,17 @@
-package com.quinnbank.core.auth.application.service;
+ package com.quinnbank.core.auth.application.service;
 
-import java.time.Instant;
+import java.util.Optional;
 
 import com.quinnbank.core.auth.application.command.RegisterIdentityUserCommand;
 import com.quinnbank.core.auth.application.port.in.CommandAuthUseCase;
 import com.quinnbank.core.auth.application.port.out.IdentityCredentialWritePort;
 import com.quinnbank.core.auth.application.port.out.IdentityUserWritePort;
 import com.quinnbank.core.auth.application.port.out.PasswordHashingPort;
+import com.quinnbank.core.auth.application.result.LoginIdentityUserResult;
 import com.quinnbank.core.auth.application.result.RegisterIdentityUserResult;
+import com.quinnbank.core.auth.domain.enums.IdentityStatus;
 import com.quinnbank.core.auth.domain.model.IdentityUser;
 import com.quinnbank.core.auth.domain.model.IdentityCredential;
-
 
 public final class AuthCommandService implements CommandAuthUseCase {
     private final IdentityUserWritePort identityUserWritePort;
@@ -28,8 +29,11 @@ public final class AuthCommandService implements CommandAuthUseCase {
     }
 
     /**
-     * 
-     * AuthCommandService
+     * Registers a new identity user.
+     *
+     * @param command the registration command
+     * @return the registration result
+     *
      * 1 Normalize and validate username
      * 2 Check if username is already in use
      * 3 Call IdentityUser.create(...) to create identity
@@ -63,5 +67,71 @@ public final class AuthCommandService implements CommandAuthUseCase {
         identityCredentialWritePort.save(credential);
         
         return new RegisterIdentityUserResult(identityUser.getId(), identityUser.getStatus());
+    }
+
+    /**
+     * Logs in an identity user.
+     *
+     * @param username the submitted username
+     * @param password the submitted password
+     * @return the authentication result or required next step
+     *
+     * 1 Normalize and validate username.
+     * 2 Retrieve identity user, credential, and login state.
+     * 3 Check identity status, owner eligibility, and temporary login lock.
+     * 4 Verify password through PasswordHashingPort.
+     * 5 On failure, record the failed attempt and audit event,
+     *   then return a safe rejection.
+     * 6 If MFA or password change is required, return the required next step
+     *   without granting business access.
+     * 7 When all authentication requirements are satisfied, recheck security
+     *   state and credential versions, update login state, and save the
+     *   success audit event in a short transaction.
+     * 8 Return a safe application result without exposing credentials.
+     *
+     * Password verification must not hold database locks.
+     * Failed-attempt updates and audit events must survive login rejection.
+     *
+     * The Spring Security adapter handles session ID rotation,
+     * SecurityContext persistence, and cookies after full authentication.
+     */
+
+    public LoginIdentityUserResult login(String username, String password) {
+        // Login logic here
+        //1 Normalize and validate username
+        String normalizedUsername = IdentityUser.normalizeUsername(username);
+
+        //2 Check if username exists
+        if (normalizedUsername == null || !identityUserWritePort.existsByUsernameNormalized(normalizedUsername)) {
+            throw new IllegalArgumentException("Invalid username or password");
+        }
+
+        //3 Retrieve user 
+        Optional<IdentityUser> identityUserOpt = identityUserWritePort.findByUsernameNormalized(normalizedUsername);
+        if (identityUserOpt.isEmpty()) {
+            throw new IllegalArgumentException("Invalid username or password");
+        }
+        IdentityUser identityUser = identityUserOpt.get();
+
+        //3 Retrieve credential
+        Optional<IdentityCredential> credentialOpt = identityCredentialWritePort.findByUserId(identityUser.getId());
+        if (credentialOpt.isEmpty()) {
+            throw new IllegalArgumentException("Invalid username or password");
+        }
+        IdentityCredential credential = credentialOpt.get();
+
+        //5 Check identity status
+        if (identityUser.getStatus() != IdentityStatus.ACTIVE) {
+            throw new IllegalArgumentException("Identity user is not active");
+        }
+
+        //4 Verify password
+        if (!passwordHashingPort.matches(password, credential.getPasswordHash())) {
+            throw new IllegalArgumentException("Invalid username or password");
+        }
+
+
+
+        return new LoginIdentityUserResult(identityUser.getId(), identityUser.getStatus());
     }
 }

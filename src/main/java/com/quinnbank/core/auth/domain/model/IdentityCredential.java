@@ -15,7 +15,7 @@ public final class IdentityCredential {
     private Instant createdAt;
     private Instant updatedAt;
 
-    private IdentityCredential(
+    public IdentityCredential(
         UUID userId,
         String passwordHash, 
         Instant passwordChangedAt, 

@@ -14,4 +14,10 @@ public class SpringPasswordHashingAdapter implements PasswordHashingPort {
         Argon2PasswordEncoder encoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
         return encoder.encode(rawPassword);
     }
+
+    @Override
+    public boolean matches(String rawPassword, String encodedPassword) {
+        Argon2PasswordEncoder encoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
+        return encoder.matches(rawPassword, encodedPassword);
+    }
 }

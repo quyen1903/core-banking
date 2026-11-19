@@ -25,4 +25,13 @@ public class IdentityCredentialPersistenceMapper {
         return entity;
     }
 
+    public static IdentityCredential toDomain(IdentityCredentialJpaEntity entity) {
+        return new IdentityCredential(
+            entity.userId,
+            entity.passwordHash,
+            entity.passwordChangedAt,
+            entity.mustChangePassword
+        );
+    }
+
 }

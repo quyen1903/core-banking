@@ -22,4 +22,18 @@ public class IdentityUserPersistenceMapper {
         entity.version = identityUser.getVersion();
         return entity;
     }
+
+    public static IdentityUser toDomain(IdentityUserJpaEntity entity) {
+        return new IdentityUser(
+            entity.id,
+            entity.publicId,
+            entity.usernameNormalized,
+            entity.ownerType,
+            entity.ownerId,
+            entity.status,
+            entity.securityVersion,
+            entity.updatedAt,
+            entity.version
+        );
+    }
 }

@@ -3,7 +3,7 @@
 Status: target design. The table definitions and APIs below do not indicate
 that migrations, use cases, or authentication controls have been implemented.
 
-- [Vietnamese implementation checklist](auth-implementation-guide.vi.md)
+- [Auth implementation checklist](auth-implementation-guide.md)
 - [Database and server-side session proposal with draft DDL](auth-session-schema-proposal.md)
 
 ## Meaning
