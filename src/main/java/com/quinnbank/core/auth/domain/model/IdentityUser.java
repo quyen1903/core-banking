@@ -11,16 +11,16 @@ import lombok.Getter;
 
 @Getter 
 public final class IdentityUser {
-    private UUID id;
-    private UUID publicId;
-    private String username;
-    private IdentityOwnerType ownerType;
-    private UUID ownerId;
-    private IdentityStatus status;
-    private long securityVersion;
-    private Instant createAt;
-    private Instant updateAt;
-    private Long version;
+    private final UUID id;
+    private final UUID publicId;
+    private final String username;
+    private final IdentityOwnerType ownerType;
+    private final UUID ownerId;
+    private final IdentityStatus status;
+    private final long securityVersion;
+    private final Instant createAt;
+    private final Instant updateAt;
+    private final Long version;
 
     public IdentityUser(
         UUID id,
