@@ -7,13 +7,13 @@ import lombok.Getter;
 
 @Getter
 public final class IdentityCredential {
-    private UUID userId;
-    private UUID identityPublicId;
-    private String passwordHash;
-    private Instant passwordChangedAt;
-    private boolean mustChangePassword;
-    private Instant createdAt;
-    private Instant updatedAt;
+    private final UUID userId;
+    private final UUID identityPublicId;
+    private final String passwordHash;
+    private final Instant passwordChangedAt;
+    private final boolean mustChangePassword;
+    private final Instant createdAt;
+    private final Instant updatedAt;
 
     public IdentityCredential(
         UUID userId,
@@ -32,13 +32,13 @@ public final class IdentityCredential {
 
     public static IdentityCredential create(
         UUID userId,
-        String passwordHash, 
+        String passwordHash,
         boolean mustChangePassword
     ) {
         return new IdentityCredential(
-            userId, 
-            passwordHash, 
-            Instant.now(), 
+            userId,
+            passwordHash,
+            Instant.now(),
             mustChangePassword
         );
     }
