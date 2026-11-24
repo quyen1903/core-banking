@@ -1,4 +1,4 @@
- package com.quinnbank.core.auth.application.service;
+package com.quinnbank.core.auth.application.service;
 
 import java.util.Optional;
 
@@ -10,8 +10,8 @@ import com.quinnbank.core.auth.application.port.out.PasswordHashingPort;
 import com.quinnbank.core.auth.application.result.LoginIdentityUserResult;
 import com.quinnbank.core.auth.application.result.RegisterIdentityUserResult;
 import com.quinnbank.core.auth.domain.enums.IdentityStatus;
-import com.quinnbank.core.auth.domain.model.IdentityUser;
 import com.quinnbank.core.auth.domain.model.IdentityCredential;
+import com.quinnbank.core.auth.domain.model.IdentityUser;
 
 public final class AuthCommandService implements CommandAuthUseCase {
     private final IdentityUserWritePort identityUserWritePort;
@@ -113,20 +113,21 @@ public final class AuthCommandService implements CommandAuthUseCase {
         }
         IdentityUser identityUser = identityUserOpt.get();
 
-        //3 Retrieve credential
+        //4 Retrieve credential
         Optional<IdentityCredential> credentialOpt = identityCredentialWritePort.findByUserId(identityUser.getId());
         if (credentialOpt.isEmpty()) {
             throw new IllegalArgumentException("Invalid username or password");
         }
         IdentityCredential credential = credentialOpt.get();
 
-        //5 Check identity status
+        //6 Check identity status
         if (identityUser.getStatus() != IdentityStatus.ACTIVE) {
             throw new IllegalArgumentException("Identity user is not active");
         }
 
-        //4 Verify password
+        //7 Verify password
         if (!passwordHashingPort.matches(password, credential.getPasswordHash())) {
+            
             throw new IllegalArgumentException("Invalid username or password");
         }
 
