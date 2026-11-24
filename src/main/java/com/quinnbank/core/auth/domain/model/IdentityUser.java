@@ -7,9 +7,12 @@ import java.util.UUID;
 import com.quinnbank.core.auth.domain.enums.IdentityStatus;
 import com.quinnbank.core.auth.domain.enums.IdentityOwnerType;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@Getter 
+@Getter
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class IdentityUser {
     private final UUID id;
     private final UUID publicId;
@@ -22,7 +25,7 @@ public final class IdentityUser {
     private final Instant updateAt;
     private final Long version;
 
-    public IdentityUser(
+    public static IdentityUser restore(
         UUID id,
         UUID publicId,
         String username, 
@@ -30,19 +33,12 @@ public final class IdentityUser {
         UUID ownerId,
         IdentityStatus status,
         long securityVersion,
-        Instant updateAt,
+        Instant createdAt,
+        Instant updatedAt,
         Long version
     ) {
-        this.id = id;
-        this.publicId = publicId;
-        this.username = username;
-        this.ownerType = ownerType;
-        this.ownerId = ownerId;
-        this.status = status;
-        this.securityVersion = securityVersion;
-        this.createAt = Instant.now();
-        this.updateAt = updateAt;
-        this.version = version;
+        return new IdentityUser(id, publicId, username, ownerType, ownerId, status,
+            securityVersion, createdAt, updatedAt, version);
     }
 
     public static IdentityUser create(
@@ -50,7 +46,7 @@ public final class IdentityUser {
         IdentityOwnerType ownerType,
         UUID ownerId
     ) {
-
+        Instant now = Instant.now();
         return new IdentityUser(
             UUID.randomUUID(),
             UUID.randomUUID(),
@@ -59,7 +55,8 @@ public final class IdentityUser {
             ownerId,
             IdentityStatus.PENDING_ACTIVATION,
             1L,
-            Instant.now(),
+            now,
+            now,
             null
         );
     }
