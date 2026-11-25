@@ -26,11 +26,14 @@ public class IdentityCredentialPersistenceMapper {
     }
 
     public static IdentityCredential toDomain(IdentityCredentialJpaEntity entity) {
-        return new IdentityCredential(
+        return IdentityCredential.restore(
             entity.userId,
+            entity.user.getPublicId(),
             entity.passwordHash,
             entity.passwordChangedAt,
-            entity.mustChangePassword
+            entity.mustChangePassword,
+            entity.createdAt,
+            entity.updatedAt
         );
     }
 

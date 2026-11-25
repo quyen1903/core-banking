@@ -10,7 +10,7 @@ public class IdentityUserPersistenceMapper {
     public static IdentityUserJpaEntity toNewEntity(IdentityUser identityUser) {
         IdentityUserJpaEntity entity = new IdentityUserJpaEntity();
         entity.id = identityUser.getId();
-        entity.publicId = identityUser.getId();
+        entity.publicId = identityUser.getPublicId();
         entity.username = identityUser.getUsername();
         entity.usernameNormalized = IdentityUser.normalizeUsername(identityUser.getUsername());
         entity.ownerId = identityUser.getOwnerId();
@@ -24,7 +24,7 @@ public class IdentityUserPersistenceMapper {
     }
 
     public static IdentityUser toDomain(IdentityUserJpaEntity entity) {
-        return new IdentityUser(
+        return IdentityUser.restore(
             entity.id,
             entity.publicId,
             entity.usernameNormalized,
@@ -32,6 +32,7 @@ public class IdentityUserPersistenceMapper {
             entity.ownerId,
             entity.status,
             entity.securityVersion,
+            entity.createdAt,
             entity.updatedAt,
             entity.version
         );

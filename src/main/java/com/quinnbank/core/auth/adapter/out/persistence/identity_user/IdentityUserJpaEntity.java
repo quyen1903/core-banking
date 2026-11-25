@@ -80,4 +80,8 @@ public class IdentityUserJpaEntity {
     Long version;
 
     protected IdentityUserJpaEntity() {}
+
+    public UUID getPublicId() {
+        return publicId;
+    }
 }

@@ -3,6 +3,12 @@ package com.quinnbank.core.auth.domain.model;
 import java.time.Instant;
 import java.util.UUID;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class IdentityLoginState {
     UUID userId;
     int failedAttempts;
@@ -13,19 +19,31 @@ public class IdentityLoginState {
     Instant createdAt;
     Instant updatedAt;
 
-    public IdentityLoginState(
+    public static IdentityLoginState restore(
+        UUID userId,
+        int failedAttempts,
         Instant failureWindowStartedAt,
         Instant lastFailedAt,
         Instant lockedUntil,
         Instant lastAuthenticatedAt,
         Instant createdAt,
+        Instant updatedAt
     ) {
-        this.userId = userId;
-        this.failedAttempts = failedAttempts;
-        this.failureWindowStartedAt = failureWindowStartedAt;
-        this.lastFailedAt = lastFailedAt;
-        this.lockedUntil = lockedUntil;
-        this.lastAuthenticatedAt = lastAuthenticatedAt;
-        this.updatedAt = updatedAt;
+        return new IdentityLoginState(userId, failedAttempts, failureWindowStartedAt, lastFailedAt,
+            lockedUntil, lastAuthenticatedAt, createdAt, updatedAt);
+    }
+
+    public static IdentityLoginState create(UUID userId) {
+        Instant now = Instant.now();
+        return new IdentityLoginState(
+            userId,
+            0,
+            null,
+            null,
+            null,
+            null,
+            now,
+            now
+        );
     }
 }

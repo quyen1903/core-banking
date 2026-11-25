@@ -3,9 +3,12 @@ package com.quinnbank.core.auth.domain.model;
 import java.time.Instant;
 import java.util.UUID;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class IdentityCredential {
     private final UUID userId;
     private final UUID identityPublicId;
@@ -15,31 +18,34 @@ public final class IdentityCredential {
     private final Instant createdAt;
     private final Instant updatedAt;
 
-    public IdentityCredential(
+    public static IdentityCredential restore(
         UUID userId,
+        UUID identityPublicId,
         String passwordHash, 
         Instant passwordChangedAt, 
-        boolean mustChangePassword
+        boolean mustChangePassword,
+        Instant createdAt,
+        Instant updatedAt
     ) {
-        this.userId = userId;
-        this.identityPublicId = userId;
-        this.passwordHash = passwordHash;
-        this.passwordChangedAt = passwordChangedAt;
-        this.mustChangePassword = mustChangePassword;
-        this.createdAt = Instant.now();
-        this.updatedAt = Instant.now();
+        return new IdentityCredential(userId, identityPublicId, passwordHash, passwordChangedAt,
+            mustChangePassword, createdAt, updatedAt);
     }
 
     public static IdentityCredential create(
         UUID userId,
+        UUID identityPublicId,
         String passwordHash,
         boolean mustChangePassword
     ) {
+        Instant now = Instant.now();
         return new IdentityCredential(
             userId,
+            identityPublicId,
             passwordHash,
-            Instant.now(),
-            mustChangePassword
+            now,
+            mustChangePassword,
+            now,
+            now
         );
     }
 }

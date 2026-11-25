@@ -5,26 +5,30 @@ import java.util.Optional;
 import com.quinnbank.core.auth.application.command.RegisterIdentityUserCommand;
 import com.quinnbank.core.auth.application.port.in.CommandAuthUseCase;
 import com.quinnbank.core.auth.application.port.out.IdentityCredentialWritePort;
+import com.quinnbank.core.auth.application.port.out.IdentityLoginStateWritePort;
 import com.quinnbank.core.auth.application.port.out.IdentityUserWritePort;
 import com.quinnbank.core.auth.application.port.out.PasswordHashingPort;
 import com.quinnbank.core.auth.application.result.LoginIdentityUserResult;
 import com.quinnbank.core.auth.application.result.RegisterIdentityUserResult;
 import com.quinnbank.core.auth.domain.enums.IdentityStatus;
 import com.quinnbank.core.auth.domain.model.IdentityCredential;
-import com.quinnbank.core.auth.domain.model.IdentityUser;
+import com.quinnbank.core.auth.domain.model.IdentityLoginState;
 
 public final class AuthCommandService implements CommandAuthUseCase {
     private final IdentityUserWritePort identityUserWritePort;
     private final IdentityCredentialWritePort  identityCredentialWritePort;
+    private final IdentityLoginStateWritePort identityLoginStateWritePort;
     private final PasswordHashingPort passwordHashingPort;
 
     public AuthCommandService(
         IdentityUserWritePort identityUserWritePort,
         IdentityCredentialWritePort identityCredentialWritePort,
+        IdentityLoginStateWritePort identityLoginStateWritePort,
         PasswordHashingPort passwordHashingPort
     ) {
         this.identityUserWritePort = identityUserWritePort;
         this.identityCredentialWritePort = identityCredentialWritePort;
+        this.identityLoginStateWritePort = identityLoginStateWritePort;
         this.passwordHashingPort = passwordHashingPort;
     }
 
@@ -59,12 +63,14 @@ public final class AuthCommandService implements CommandAuthUseCase {
         //4 Hash password using password encoder
         String passwordHash = passwordHashingPort.encode(command.password());
 
-        //5 Create credential containing password hash
-        IdentityCredential credential = IdentityCredential.create(identityUser.getId(), passwordHash, false);
+        //5 Create credential containing password hash and login state
+        IdentityCredential credential = IdentityCredential.create(identityUser.getId(), identityUser.getPublicId(), passwordHash, false);
+        IdentityLoginState loginState = IdentityLoginState.create(identityUser.getId());
 
         //6 Save identity, credential and audit in the same transaction
         identityUserWritePort.save(identityUser);
         identityCredentialWritePort.save(credential);
+        identityLoginStateWritePort.save(loginState);
         
         return new RegisterIdentityUserResult(identityUser.getId(), identityUser.getStatus());
     }
