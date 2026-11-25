@@ -1,5 +1,6 @@
 package com.quinnbank.core.auth.adapter.out.configuration;
 
+import com.quinnbank.core.auth.application.port.out.IdentityLoginStateWritePort;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Bean;
 
@@ -15,9 +16,10 @@ public class AuthUseCaseConfiguration {
     CommandAuthUseCase commandAuthUseCase(
         IdentityUserWritePort identityUser,
         IdentityCredentialWritePort identityCredential,
+        IdentityLoginStateWritePort identityLoginStateWritePort,
         PasswordHashingPort passwordHashing
 
     ){
-        return new TransactionalCommandAuthUseCase(new AuthCommandService(identityUser, identityCredential, passwordHashing));
+        return new TransactionalCommandAuthUseCase(new AuthCommandService(identityUser, identityCredential, identityLoginStateWritePort, passwordHashing));
     };
 }

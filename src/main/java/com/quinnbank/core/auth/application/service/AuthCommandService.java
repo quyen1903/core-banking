@@ -13,6 +13,7 @@ import com.quinnbank.core.auth.application.result.RegisterIdentityUserResult;
 import com.quinnbank.core.auth.domain.enums.IdentityStatus;
 import com.quinnbank.core.auth.domain.model.IdentityCredential;
 import com.quinnbank.core.auth.domain.model.IdentityLoginState;
+import com.quinnbank.core.auth.domain.model.IdentityUser;
 
 public final class AuthCommandService implements CommandAuthUseCase {
     private final IdentityUserWritePort identityUserWritePort;

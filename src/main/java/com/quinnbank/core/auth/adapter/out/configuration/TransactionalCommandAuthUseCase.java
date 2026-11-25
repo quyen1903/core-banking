@@ -2,6 +2,7 @@ package com.quinnbank.core.auth.adapter.out.configuration;
 
 import com.quinnbank.core.auth.application.command.RegisterIdentityUserCommand;
 import com.quinnbank.core.auth.application.port.in.CommandAuthUseCase;
+import com.quinnbank.core.auth.application.result.LoginIdentityUserResult;
 import com.quinnbank.core.auth.application.result.RegisterIdentityUserResult;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -17,5 +18,11 @@ public class TransactionalCommandAuthUseCase implements CommandAuthUseCase{
     @Transactional
     public RegisterIdentityUserResult register(RegisterIdentityUserCommand command){
         return delegate.register(command);
+    }
+
+    @Override
+    @Transactional
+    public LoginIdentityUserResult login(String username, String password){
+        return delegate.login(username, password);
     }
 }
